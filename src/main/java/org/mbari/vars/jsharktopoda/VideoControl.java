@@ -9,8 +9,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import rx.observables.JavaFxObservable;
+import uk.co.caprica.vlcj.player.direct.DirectMediaPlayer;
+
+import java.time.Duration;
 
 /**
  * @author Brian Schlining
@@ -113,13 +119,69 @@ public class VideoControl extends Pane {
         return playButton;
     }
 
-    protected JFXSlider getScrubber() {
+    public JFXSlider getScrubber() {
         if (scrubber == null) {
             scrubber = new JFXSlider(0, 1000, 0);
             scrubber.setPrefWidth(325);
+
         }
         return scrubber;
 
     }
 
+    public void setMediaPlayer(MediaPlayer mediaPlayer) {
+        Media media = mediaPlayer.getMedia();
+
+        // Show the total media time
+        long seconds = (long) mediaPlayer.getMedia().getDuration().toSeconds();
+        String s = formatSeconds(seconds);
+        durationLabel.setText(s);
+
+        // Configure the scrubber for the media time and bind it
+        JFXSlider slider = getScrubber();
+        slider.setMax(media.getDuration().toMillis());
+
+        slider.valueProperty().addListener(observable -> {
+            if (slider.isValueChanging()) {
+                mediaPlayer.seek(javafx.util.Duration.millis(slider.getValue()));
+            }
+            else {
+                slider.setValue(mediaPlayer.getCurrentTime().toMillis());
+            }
+        });
+
+        // Bind media to elapsed time label
+        mediaPlayer.currentTimeProperty()
+                .addListener((observable, oldValue, newValue) -> durationLabel.setText(formatSeconds((long) newValue.toSeconds())));
+    }
+
+    public void setDirectMediaPlayer(uk.co.caprica.vlcj.player.MediaPlayer mediaPlayer) {
+        long millis = mediaPlayer.getMediaMeta().getLength();
+        long seconds = millis / 1000;
+        String s = formatSeconds(seconds);
+        durationLabel.setText(s);
+
+        JFXSlider slider = getScrubber();
+        slider.setMax(millis);
+
+        slider.valueProperty().addListener(observable -> {
+            if (slider.isValueChanging() || mediaPlayer.isSeekable()) {
+                float position = (float) (slider.getValue() / (double) millis);
+                mediaPlayer.setPosition(position);
+            }
+            else {
+                long m = (long) (millis * mediaPlayer.getPosition());
+                slider.setValue(m);
+            }
+        });
+
+
+
+
+
+    }
+
+    private String formatSeconds(long seconds) {
+        return String.format("%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));
+    }
 }
