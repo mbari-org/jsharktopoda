@@ -1,4 +1,4 @@
-package org.mbari.vars.jsharktopoda;
+package org.mbari.vars.jsharktopoda.javafx;
 
 import javafx.application.Application;
 import javafx.application.Platform;

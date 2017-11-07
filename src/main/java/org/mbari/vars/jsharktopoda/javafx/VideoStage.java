@@ -1,5 +1,6 @@
-package org.mbari.vars.jsharktopoda;
+package org.mbari.vars.jsharktopoda.javafx;
 
+import com.sun.jna.Memory;
 import javafx.application.Platform;
 import javafx.beans.property.FloatProperty;
 import javafx.beans.property.SimpleFloatProperty;
@@ -16,6 +17,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.mbari.vars.jsharktopoda.Preconditions;
 import uk.co.caprica.vlcj.component.DirectMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.direct.BufferFormat;
 import uk.co.caprica.vlcj.player.direct.BufferFormatCallback;
@@ -63,9 +65,17 @@ public class VideoStage extends Stage {
         scene.setFill(Color.BLACK);
         setScene(scene);
         mediaPlayerComponent.getMediaPlayer().prepareMedia(pathToVideo);
-
         mediaPlayerComponent.getMediaPlayer().start();
-        Dimension vd = mediaPlayerComponent.getMediaPlayer().getVideoDimension();
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Dimension vd = mediaPlayerComponent.getMediaPlayer().getVideoDimension();
+            playerHolder.setPrefSize(vd.width, vd.height);
+        }).start();
 
     }
 
@@ -122,7 +132,7 @@ public class VideoStage extends Stage {
             return pixelWriter;
         }
 
-        /* VLCj 3.10.0
+        /* VLCj 3.10.0 */
         @Override
         public void display(DirectMediaPlayer mediaPlayer, Memory[] nativeBuffers, BufferFormat bufferFormat) {
             if (writableImage == null) {
@@ -138,29 +148,30 @@ public class VideoStage extends Stage {
                     mediaPlayer.unlock();
                 }
             });
-        } */
+        }
 
         /**
-         * For VLCJ experimental
+         * For VLCJ experimental 4.0.0-SNAPSHOT
          * @param mediaPlayer
          * @param nativeBuffers
          * @param bufferFormat
          */
-        @Override
-        public void display(DirectMediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
-            if (writableImage == null) {
-                return;
-            }
-            Platform.runLater(() -> {
-                ByteBuffer byteBuffer = mediaPlayer.lock()[0];
-                try {
-                    getPixelWriter().setPixels(0, 0, bufferFormat.getWidth(), bufferFormat.getHeight(), pixelFormat, byteBuffer, bufferFormat.getPitches()[0]);
-                }
-                finally {
-                    mediaPlayer.unlock();
-                }
-            });
-        }
+
+//        @Override
+//        public void display(DirectMediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
+//            if (writableImage == null) {
+//                return;
+//            }
+//            Platform.runLater(() -> {
+//                ByteBuffer byteBuffer = mediaPlayer.lock()[0];
+//                try {
+//                    getPixelWriter().setPixels(0, 0, bufferFormat.getWidth(), bufferFormat.getHeight(), pixelFormat, byteBuffer, bufferFormat.getPitches()[0]);
+//                }
+//                finally {
+//                    mediaPlayer.unlock();
+//                }
+//            });
+//        }
     }
 
     private class CanvasBufferFormatCallback implements BufferFormatCallback {

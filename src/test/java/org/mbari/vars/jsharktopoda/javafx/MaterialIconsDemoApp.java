@@ -1,4 +1,4 @@
-package org.mbari.vars.jsharktopoda;
+package org.mbari.vars.jsharktopoda.javafx;
 
 import de.jensd.fx.glyphs.materialicons.MaterialIcon;
 import de.jensd.fx.glyphs.materialicons.utils.MaterialIconFactory;

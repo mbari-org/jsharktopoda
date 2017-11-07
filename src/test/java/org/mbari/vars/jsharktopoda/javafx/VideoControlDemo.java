@@ -1,8 +1,9 @@
-package org.mbari.vars.jsharktopoda;
+package org.mbari.vars.jsharktopoda.javafx;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.mbari.vars.jsharktopoda.javafx.VideoControl;
 
 /**
  * @author Brian Schlining
