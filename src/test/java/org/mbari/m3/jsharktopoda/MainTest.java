@@ -1,4 +1,4 @@
-package org.mbari.vars.jsharktopoda;
+package org.mbari.m3.jsharktopoda;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

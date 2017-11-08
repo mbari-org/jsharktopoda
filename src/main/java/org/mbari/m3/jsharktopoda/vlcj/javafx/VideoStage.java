@@ -1,4 +1,4 @@
-package org.mbari.vars.jsharktopoda.javafx;
+package org.mbari.m3.jsharktopoda.vlcj.javafx;
 
 import com.sun.jna.Memory;
 import javafx.application.Platform;
@@ -17,7 +17,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import org.mbari.vars.jsharktopoda.Preconditions;
+import org.mbari.m3.jsharktopoda.Preconditions;
 import uk.co.caprica.vlcj.component.DirectMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.direct.BufferFormat;
 import uk.co.caprica.vlcj.player.direct.BufferFormatCallback;

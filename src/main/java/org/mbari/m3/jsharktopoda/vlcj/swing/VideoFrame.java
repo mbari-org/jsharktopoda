@@ -1,4 +1,4 @@
-package org.mbari.vars.jsharktopoda.swing;
+package org.mbari.m3.jsharktopoda.vlcj.swing;
 
 import uk.co.caprica.vlcj.component.DirectMediaPlayerComponent;
 import uk.co.caprica.vlcj.discovery.NativeDiscovery;

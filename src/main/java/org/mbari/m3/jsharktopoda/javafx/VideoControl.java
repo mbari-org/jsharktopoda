@@ -1,4 +1,4 @@
-package org.mbari.vars.jsharktopoda.javafx;
+package org.mbari.m3.jsharktopoda.javafx;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSlider;

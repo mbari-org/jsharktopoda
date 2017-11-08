@@ -1,9 +1,10 @@
-package org.mbari.vars.jsharktopoda.javafx;
+package org.mbari.m3.jsharktopoda.javafx;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import org.mbari.m3.jsharktopoda.vlcj.javafx.VideoStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.caprica.vlcj.binding.LibVlc;
