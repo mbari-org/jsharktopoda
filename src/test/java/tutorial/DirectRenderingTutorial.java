@@ -24,9 +24,9 @@ import uk.co.caprica.vlcj.player.direct.format.RV32BufferFormat;
 
 public class DirectRenderingTutorial {
 
-    private static final int width = 600;
+    private static final int width = 1200;
 
-    private static final int height = 400;
+    private static final int height = 800;
 
     private final JFrame frame;
 

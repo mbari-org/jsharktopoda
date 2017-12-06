@@ -34,6 +34,10 @@ public class JFXUtilities {
         return Duration.ofMillis(Math.round(completeTimecode.getSeconds() * 1000L));
     }
 
+    public static String formatSeconds(long seconds) {
+        return String.format("%02d:%02d", (seconds % 3600) / 60, (seconds % 60));
+    }
+
     /**
      *
      * @param clazz The controller class

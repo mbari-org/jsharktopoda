@@ -23,9 +23,7 @@ import javafx.scene.media.MediaView;
 import javafx.util.Duration;
 import org.mbari.awt.image.ImageUtilities;
 import org.mbari.m3.jsharktopoda.Preconditions;
-import org.mbari.vcr4j.time.Timecode;
 
-import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -38,8 +36,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 public class MoviePaneController implements Initializable {
-
-    public static final Double DEFAULT_FRAME_RATE = 100D;
 
     @FXML
     private AnchorPane anchorPane;
@@ -59,11 +55,9 @@ public class MoviePaneController implements Initializable {
     @FXML
     private Button playButton;
 
-
-
     private MediaPlayer mediaPlayer;
 
-    private BooleanProperty readyProperty = new SimpleBooleanProperty(false);
+    private BooleanProperty ready = new SimpleBooleanProperty(false);
 
 
     @Override
@@ -87,6 +81,10 @@ public class MoviePaneController implements Initializable {
 
     public MediaPlayer getMediaPlayer() {
         return mediaPlayer;
+    }
+
+    public TextField getMaxTimecodeTextField() {
+        return maxTimecodeTextField;
     }
 
     public void setMediaLocation(String mediaLocation, Consumer<MoviePaneController> onReadyRunnable) {
@@ -113,14 +111,16 @@ public class MoviePaneController implements Initializable {
 
         mediaPlayer.setOnPaused(() -> playButton.setText(">"));
 
-        mediaPlayer.setOnReady(() -> {
-            Media m = mediaPlayer.getMedia();
-            Timecode timecode = JFXUtilities.jfxDurationToTimecode(m.getDuration());
-            Platform.runLater(() -> maxTimecodeTextField.setText(timecode.toString()));
-            updateValues();
-            onReadyRunnable.accept(this);
-            readyProperty.setValue(true);
-        });
+        mediaPlayer.setOnReady(() -> onReadyRunnable.accept(this));
+
+//        mediaPlayer.setOnReady(() -> {
+//            Media m = mediaPlayer.getMedia();
+//            Timecode timecode = JFXUtilities.jfxDurationToTimecode(m.getDuration());
+//            Platform.runLater(() -> maxTimecodeTextField.setText(timecode.toString()));
+//            updateValues();
+//            onReadyRunnable.accept(this);
+//            ready.setValue(true);
+//        });
 
         mediaPlayer.setOnEndOfMedia(() -> playButton.setText(">"));
 
@@ -161,11 +161,11 @@ public class MoviePaneController implements Initializable {
 
 
     public boolean isReady() {
-        return readyProperty.get();
+        return ready.get();
     }
 
     public BooleanProperty readyProperty() {
-        return readyProperty;
+        return ready;
     }
 
 
@@ -217,13 +217,12 @@ public class MoviePaneController implements Initializable {
         return bufferedImage;
     }
 
-    protected  void updateValues() {
+    protected void updateValues() {
         if (timecodeTextField != null && scrubber != null && mediaPlayer != null) {
             Platform.runLater(() -> {
                 Duration currentTime = mediaPlayer.getCurrentTime();
                 Duration totalTime = mediaPlayer.getMedia().getDuration();
-                Timecode timecode = JFXUtilities.jfxDurationToTimecode(currentTime);
-                timecodeTextField.setText(timecode.toString());
+                timecodeTextField.setText(JFXUtilities.formatSeconds(Math.round(currentTime.toSeconds())));
                 scrubber.setDisable(totalTime.isUnknown());
                 if (!scrubber.isDisabled() && totalTime.greaterThan(Duration.ZERO) && !scrubber.isValueChanging()) {
                     scrubber.setValue(currentTime.divide(totalTime.toMillis()).toMillis() * 100D);
