@@ -6,10 +6,14 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Duration;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -83,6 +87,10 @@ public class MovieStageController {
 
     }
 
+    public MediaView getMediaView() {
+        return controller.getMediaView();
+    }
+
     public MediaPlayer getMediaPlayer() {
         return controller.getMediaPlayer();
     }
@@ -103,6 +111,18 @@ public class MovieStageController {
                         .getDuration();
                 moviePaneController.getMaxTimeLabel()
                         .setText(JFXUtilities.formatSeconds(Math.round(totalTime.toSeconds())));
+                moviePaneController.readyProperty().addListener(obs -> {
+                    Media media = moviePaneController.getMediaPlayer().getMedia();
+                    MediaView mediaView = moviePaneController.getMediaView();
+                    Window root = mediaView.getScene().getWindow();
+                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                    double width = media.getWidth() > screenSize.getWidth() ?
+                            screenSize.getWidth() : media.getWidth();
+                    double height = media.getHeight() > screenSize.getHeight() ?
+                            screenSize.getHeight() : media.getHeight();
+                    root.setWidth(width);
+                    root.setHeight(height);
+                });
                 moviePaneController.readyProperty().setValue(true);
             });
 

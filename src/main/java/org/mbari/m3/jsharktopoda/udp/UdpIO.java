@@ -49,6 +49,12 @@ public class UdpIO {
         receiverThread.start();
     }
 
+    public void close() {
+        ok = false;
+        commandSubject.onComplete();
+        responseSubject.onComplete();
+    }
+
     private void doResponse(GenericResponse response) {
         if (response.isResponseExpected()) {
             try {
@@ -98,6 +104,7 @@ public class UdpIO {
 
         });
     }
+
 
 
 

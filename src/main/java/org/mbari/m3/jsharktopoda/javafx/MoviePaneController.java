@@ -192,7 +192,7 @@ public class MoviePaneController implements Initializable {
         if (mediaView != null) {
             Platform.runLater(() -> {
                 WritableImage image = mediaView.snapshot(new SnapshotParameters(), null);
-                System.out.println("Saving image to " + target.getAbsolutePath());
+                log.debug("Saving image to " + target.getAbsolutePath());
                 try {
                     ImageUtilities.saveImage(SwingFXUtils.fromFXImage(image, null), target);
                 } catch (IOException e) {
