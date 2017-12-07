@@ -1,6 +1,6 @@
 ![MBARI logo](src/site/resources/images/logo-mbari-3b.png)
 
-# Sharktopoda
+# jsharktopoda
 
 ![Sharktopoda](src/site/resources/images/icon_256x256.png)
 
