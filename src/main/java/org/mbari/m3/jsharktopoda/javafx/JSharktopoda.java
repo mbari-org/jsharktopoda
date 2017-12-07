@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -65,6 +66,7 @@ public class JSharktopoda extends Application {
         MaterialIconFactory iconFactory = MaterialIconFactory.get();
         Text powerIcon = iconFactory.createIcon(MaterialIcon.POWER_SETTINGS_NEW, "30px");
         Button powerButton = new Button();
+        powerButton.setTooltip(new Tooltip(i18n.getString("app.quit")));
         powerButton.setGraphic(powerIcon);
         powerButton.setOnAction(event -> {
             Platform.exit();
@@ -73,6 +75,7 @@ public class JSharktopoda extends Application {
 
         Text settingsIcon = iconFactory.createIcon(MaterialIcon.SETTINGS, "30px");
         Button settingsButton = new Button();
+        settingsButton.setTooltip(new Tooltip(i18n.getString("app.settings")));
         settingsButton.setGraphic(settingsIcon);
         settingsButton.setOnAction(event -> {
             Optional<String> opt = getPortDialog().showAndWait();
@@ -87,6 +90,7 @@ public class JSharktopoda extends Application {
                 .add(new FileChooser.ExtensionFilter(i18n.getString("filechooser.filtername"), "*.mp4"));
         Text openFileIcon = iconFactory.createIcon(MaterialIcon.COMPUTER, "30px");
         Button openButton = new Button();
+        openButton.setTooltip(new Tooltip(i18n.getString("app.file")));
         openButton.setGraphic(openFileIcon);
         openButton.setOnAction(event -> {
             File file = fileChooser.showOpenDialog(primaryStage);
@@ -112,6 +116,7 @@ public class JSharktopoda extends Application {
         urlDialog.getEditor().setPromptText(i18n.getString("urlchooser.prompt"));
         Text openUrlIcon = iconFactory.createIcon(MaterialIcon.CLOUD, "30px");
         Button openUrlButton = new Button();
+        openUrlButton.setTooltip(new Tooltip(i18n.getString("app.url")));
         openUrlButton.setGraphic(openUrlIcon);
         openUrlButton.setOnAction(event -> {
             Optional<String> opt = urlDialog.showAndWait();
