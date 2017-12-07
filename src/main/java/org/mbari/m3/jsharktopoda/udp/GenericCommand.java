@@ -29,6 +29,10 @@ public class GenericCommand {
         return command;
     }
 
+    public void setCommand(String command) {
+        this.command = command;
+    }
+
     public Integer getPort() {
         return port;
     }
@@ -41,8 +45,16 @@ public class GenericCommand {
         return url;
     }
 
+    public void setUrl(URL url) {
+        this.url = url;
+    }
+
     public UUID getUuid() {
         return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public Double getRate() {

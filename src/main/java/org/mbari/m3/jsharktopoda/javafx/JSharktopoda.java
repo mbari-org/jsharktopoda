@@ -8,10 +8,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.mbari.m3.jsharktopoda.udp.GenericCommand;
 import org.mbari.m3.jsharktopoda.udp.UdpIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.util.UUID;
 
 /**
  * @author Brian Schlining
@@ -22,6 +28,7 @@ public class JSharktopoda extends Application {
     private static UdpIO io;
     private static CommandService commandService;
     private static final Logger log = LoggerFactory.getLogger(JSharktopoda.class);
+    private FileChooser fileChooser;
 
     public static void main(String[] args) {
         int port = Integer.parseInt(args[0]);
@@ -49,7 +56,31 @@ public class JSharktopoda extends Application {
             // TODO show settings dialog
         });
 
-        VBox vBox = new VBox(powerButton, settingsButton);
+        fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Movie");
+        fileChooser.getExtensionFilters()
+                .add(new FileChooser.ExtensionFilter("Video files", "*.mp4"));
+        Text openFileIcon = iconFactory.createIcon(MaterialIcon.PERSONAL_VIDEO, "30px");
+        Button openButton = new Button();
+        openButton.setGraphic(openFileIcon);
+        openButton.setOnAction(event -> {
+            File file = fileChooser.showOpenDialog(primaryStage);
+            if (file != null) {
+                GenericCommand cmd = new GenericCommand();
+                cmd.setCommand("open");
+                cmd.setUuid(UUID.randomUUID());
+                try {
+                    cmd.setUrl(file.toURI().toURL());
+                    io.getCommandSubject().onNext(cmd);
+                }
+                catch (MalformedURLException e) {
+                    log.error("Unable to open file", e);
+                }
+            }
+        });
+
+
+        VBox vBox = new VBox(powerButton, settingsButton, openButton);
         Scene scene = new Scene(vBox);
         primaryStage.setScene(scene);
         primaryStage.show();

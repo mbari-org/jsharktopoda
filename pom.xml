@@ -80,6 +80,14 @@
       <name>bintray</name>
       <url>http://dl.bintray.com/jerady/maven</url>
     </repository>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray-hohonuuli-maven</id>
+      <name>bintray</name>
+      <url>http://dl.bintray.com/hohonuuli/maven</url>
+    </repository>
   </repositories>
   <build>
     <plugins>
