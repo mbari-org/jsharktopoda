@@ -1,9 +1,16 @@
-package org.mbari.m3.jsharktopoda.udp;
+package org.mbari.m3.jsharktopoda.javafx;
 
 import com.google.gson.Gson;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.Subject;
+import javafx.application.Platform;
 import javafx.scene.media.MediaPlayer;
 import org.mbari.m3.jsharktopoda.javafx.MovieStageController;
+import org.mbari.m3.jsharktopoda.udp.GenericCommand;
+import org.mbari.m3.jsharktopoda.udp.GenericResponse;
+import org.mbari.m3.jsharktopoda.udp.UdpIO;
+import org.mbari.m3.jsharktopoda.udp.Video;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +22,7 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.function.BiConsumer;
 
 /**
@@ -35,7 +40,9 @@ public class CommandService {
     public CommandService(Subject<GenericCommand> commandSubject, Subject<GenericResponse> responseSubject) {
         this.commandSubject = commandSubject;
         this.responseSubject = responseSubject;
-        commandSubject.subscribe(this::handleCommand);
+        Scheduler scheduler = Schedulers.from(new PlatformExecutor());
+        commandSubject.observeOn(scheduler)
+                .subscribe(this::handleCommand);
     }
 
     private void handleCommand(GenericCommand cmd) {
@@ -87,14 +94,15 @@ public class CommandService {
 
 
     private void doOpen(GenericCommand cmd) {
-        GenericResponse r = new GenericResponse("open");
+        GenericResponse r = new GenericResponse(cmd);
         if (cmd.getUrl() != null && cmd.getUuid() != null) {
-            MovieStageController stageController = MovieStageController.newInstance(cmd.getUrl().toString());
-            stageController.readyProperty().addListener((ovs, oldv, newv) -> stageController.getStage().show());
-            controllers.put(cmd.getUuid(), stageController);
+                MovieStageController stageController = MovieStageController.newInstance(cmd.getUrl().toString());
+                stageController.readyProperty().addListener((ovs, oldv, newv) -> {
+                    stageController.getStage().show();
+                });
+                controllers.put(cmd.getUuid(), stageController);
             r.setStatus("ok");
-        }
-        else {
+        } else {
             log.warn("Bad command: {}", gson.toJson(cmd));
             r.setStatus("failed");
         }
@@ -113,17 +121,24 @@ public class CommandService {
     private void doShow(GenericCommand cmd) {
         GenericResponse r = new GenericResponse();
         if (cmd.getUuid() != null && controllers.containsKey(cmd.getUuid())) {
-            MovieStageController controller = controllers.get(cmd.getUuid());
+                MovieStageController controller = controllers.get(cmd.getUuid());
+                //Platform.runLater(() -> controller.getStage().requestFocus());
             controller.getStage().requestFocus();
         }
         responseSubject.onNext(r);
     }
 
     private void doRequestVideoInfo(GenericCommand cmd) {
-        GenericResponse r = new GenericResponse("request video information");
+        GenericResponse r = new GenericResponse(cmd);
         Optional<Map.Entry<UUID, MovieStageController>> focused = controllers.entrySet()
                 .stream()
-                .filter(e -> e.getValue().getStage().isFocused())
+                .filter(e ->  {
+                    try {
+                        return e.getValue().getStage().isFocused();
+                    }
+                    catch (Exception ex) {
+                        return false;
+                    }})
                 .findFirst();
 
         focused.ifPresent(e -> {
@@ -140,7 +155,7 @@ public class CommandService {
     }
 
     private void doRequestAllVideoInfos(GenericCommand cmd) {
-        GenericResponse r = new GenericResponse("request all information");
+        GenericResponse r = new GenericResponse(cmd);
         Video[] videos = controllers.entrySet()
                 .stream()
                 .map(e -> {
@@ -162,8 +177,8 @@ public class CommandService {
     private void doPlay(GenericCommand cmd) {
         doAction(cmd, (mediaPlayer, genericResponse) -> {
             double rate = cmd.getRate() == null ? 1.0 : cmd.getRate();
-            mediaPlayer.setRate(rate);
-            mediaPlayer.play();
+                mediaPlayer.setRate(rate);
+                mediaPlayer.play();
             genericResponse.setStatus("ok");
         });
     }
@@ -179,6 +194,7 @@ public class CommandService {
         doAction(cmd, (mediaPlayer, genericResponse) -> {
             javafx.util.Duration currentTime = mediaPlayer.getCurrentTime();
             genericResponse.setElapsedTime(Duration.ofMillis(Math.round(currentTime.toMillis())));
+            genericResponse.setStatus(null);
         });
     }
 
@@ -197,10 +213,7 @@ public class CommandService {
                     genericResponse.setStatus("shuttling reverse");
                 }
             }
-            else if (status == MediaPlayer.Status.PAUSED ||
-                    status == MediaPlayer.Status.STOPPED ||
-                    status == MediaPlayer.Status.STALLED ||
-                    status == MediaPlayer.Status.HALTED) {
+            else {
                 genericResponse.setStatus("paused");
             }
         });
@@ -227,7 +240,7 @@ public class CommandService {
     }
 
     private void doAction(GenericCommand cmd, BiConsumer<MediaPlayer, GenericResponse> fn) {
-        GenericResponse r = new GenericResponse(cmd.getCommand());
+        GenericResponse r = new GenericResponse(cmd);
         r.setStatus("failed");
         r.setUuid(r.getUuid());
         if (cmd.getUuid() != null && controllers.containsKey(cmd.getUuid())) {

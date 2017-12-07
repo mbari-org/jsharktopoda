@@ -2,6 +2,8 @@ package org.mbari.m3.jsharktopoda.udp;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.URL;
 import java.time.Duration;
 import java.util.UUID;
@@ -20,6 +22,8 @@ public class GenericCommand {
     @SerializedName("elapsed_time_millis") private Duration elapsedTime;
     private String imageLocation;
     private UUID imageReferenceUuid;
+    private transient InetAddress packetAddress;
+    private transient int packetPort;
 
     public String getCommand() {
         return command;
@@ -55,5 +59,21 @@ public class GenericCommand {
 
     public UUID getImageReferenceUuid() {
         return imageReferenceUuid;
+    }
+
+    public InetAddress getPacketAddress() {
+        return packetAddress;
+    }
+
+    public void setPacketAddress(InetAddress packetAddress) {
+        this.packetAddress = packetAddress;
+    }
+
+    public int getPacketPort() {
+        return packetPort;
+    }
+
+    public void setPacketPort(int packetPort) {
+        this.packetPort = packetPort;
     }
 }

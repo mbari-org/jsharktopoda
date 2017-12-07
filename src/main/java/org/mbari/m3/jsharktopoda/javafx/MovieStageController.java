@@ -1,17 +1,12 @@
 package org.mbari.m3.jsharktopoda.javafx;
 
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -47,9 +42,10 @@ public class MovieStageController {
             controller.setMediaLocation(movieLocation, onReadyRunnable);
             AnchorPane root = controller.getRoot();
             Scene scene = new Scene(root);
-            scene.getStylesheets().add("/styles/JFXMovieFrame.css");
+            scene.getStylesheets().add("/css/MoviePane.css");
             stage = new Stage();
             stage.setScene(scene);
+            stage.setOnCloseRequest(evt -> stage.close());
             scene.heightProperty().addListener(obs -> resize(scene, root));
         });
     }
@@ -80,8 +76,11 @@ public class MovieStageController {
     }
 
     public void close() {
-        getStage().close();
-        controller.getMediaPlayer().dispose();
+        Platform.runLater(() -> {
+            getStage().close();
+            controller.getMediaPlayer().dispose();
+        });
+
     }
 
     public MediaPlayer getMediaPlayer() {
@@ -97,13 +96,16 @@ public class MovieStageController {
      */
     public static MovieStageController newInstance(String movieLocation) {
         Consumer<MoviePaneController> fn = moviePaneController -> {
-            moviePaneController.updateValues();
-            Duration totalTime = moviePaneController.getMediaPlayer()
-                    .getMedia()
-                    .getDuration();
-            moviePaneController.getMaxTimecodeTextField()
-                    .setText(JFXUtilities.formatSeconds(Math.round(totalTime.toSeconds())));
-            moviePaneController.readyProperty().setValue(true);
+            Platform.runLater(() -> {
+                moviePaneController.updateValues();
+                Duration totalTime = moviePaneController.getMediaPlayer()
+                        .getMedia()
+                        .getDuration();
+                moviePaneController.getMaxTimeLabel()
+                        .setText(JFXUtilities.formatSeconds(Math.round(totalTime.toSeconds())));
+                moviePaneController.readyProperty().setValue(true);
+            });
+
         };
         return new MovieStageController(movieLocation, fn);
     }

@@ -1,0 +1,37 @@
+.root {
+    textcolor: #FF0000;
+    -fx-background-color: #000000;
+}
+
+.timeLabel {
+    -fx-background-color: transparent;
+    -fx-text-fill: textcolor;
+    -fx-font-size: 140%;
+    -fx-font-family: monospace;
+    -fx-padding: 5;
+}
+
+
+#mediaView {
+    -fx-background-color: #000000;
+}
+
+#scrubber {
+    /* -fx-alignment: bottom-center; */
+}
+
+.slider .track {
+    -fx-background-color: #FF0000AA;
+    -fx-control-inner-background: #FF0000AA;
+    -fx-pref-height: 4;
+}
+
+
+.button {
+    /* -fx-padding: 0px 10px 0px 10px; */
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+    -fx-effect: innershadow( gaussian , red , 7 , 1 , 1 , 1 );
+}

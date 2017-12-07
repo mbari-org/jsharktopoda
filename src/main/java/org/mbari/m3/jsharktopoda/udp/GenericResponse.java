@@ -2,6 +2,7 @@ package org.mbari.m3.jsharktopoda.udp;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.net.InetAddress;
 import java.net.URL;
 import java.time.Duration;
 import java.util.UUID;
@@ -21,11 +22,26 @@ public class GenericResponse {
     private UUID imageReferenceUuid;
     private String imageLocation;
     private URL url;
+    private transient InetAddress packetAddress;
+    private transient int packetPort;
 
     public GenericResponse() {
     }
 
+    public GenericResponse(GenericCommand cmd) {
+        packetAddress = cmd.getPacketAddress();
+        packetPort = cmd.getPacketPort();
+        response = cmd.getCommand();
+        uuid = cmd.getUuid();
+    }
+
     public GenericResponse(String response) {
+        this.response = response;
+    }
+
+    public GenericResponse(GenericCommand cmd, String response) {
+        packetAddress = cmd.getPacketAddress();
+        packetPort = cmd.getPacketPort();
         this.response = response;
     }
 
@@ -99,5 +115,21 @@ public class GenericResponse {
      */
     public boolean isResponseExpected() {
         return response != null && !response.isEmpty();
+    }
+
+    public InetAddress getPacketAddress() {
+        return packetAddress;
+    }
+
+    public void setPacketAddress(InetAddress packetAddress) {
+        this.packetAddress = packetAddress;
+    }
+
+    public int getPacketPort() {
+        return packetPort;
+    }
+
+    public void setPacketPort(int packetPort) {
+        this.packetPort = packetPort;
     }
 }

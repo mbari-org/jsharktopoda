@@ -3,6 +3,8 @@ package org.mbari.m3.jsharktopoda.udp;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 import org.slf4j.Logger;
@@ -13,6 +15,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.time.Duration;
+import java.util.concurrent.Executors;
 
 /**
  * @author Brian Schlining
@@ -35,9 +38,11 @@ public class UdpIO {
 
         // TODO handle connect command for framecapture. Configure socket to respond
 
+        Scheduler scheduler = Schedulers.from(Executors.newSingleThreadExecutor());
         PublishSubject<GenericResponse> s2 = PublishSubject.create();
         responseSubject = s2.toSerialized();
-        responseSubject.subscribe(this::doResponse);
+        responseSubject.subscribeOn(scheduler)
+                .subscribe(this::doResponse);
 
         receiverThread = buildReceiverThread();
         receiverThread.setDaemon(true);
@@ -45,14 +50,19 @@ public class UdpIO {
     }
 
     private void doResponse(GenericResponse response) {
-        try {
-            DatagramSocket s = getServer();
-            byte[] b = gson.toJson(response).getBytes();
-            DatagramPacket packet = new DatagramPacket(b, b.length);
-            s.send(packet);
-        }
-        catch (Exception e) {
-            log.error("UDP response failed", e);
+        if (response.isResponseExpected()) {
+            try {
+                DatagramSocket s = getServer();
+                byte[] b = gson.toJson(response).getBytes();
+                DatagramPacket packet = new DatagramPacket(b,
+                        b.length,
+                        response.getPacketAddress(),
+                        response.getPacketPort());
+                s.send(packet);
+                log.debug("Sending " + new String(b));
+            } catch (Exception e) {
+                log.error("UDP response failed", e);
+            }
         }
     }
 
@@ -66,6 +76,8 @@ public class UdpIO {
                     String msg = new String(packet.getData(), 0, packet.getLength());
                     log.debug("GOT MSG: " + msg);
                     GenericCommand r = gson.fromJson(msg, GenericCommand.class);
+                    r.setPacketAddress(packet.getAddress());
+                    r.setPacketPort(packet.getPort());
                     commandSubject.onNext(r);
                 }
                 catch (Exception e) {

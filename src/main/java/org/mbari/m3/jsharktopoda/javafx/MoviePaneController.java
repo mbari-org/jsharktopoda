@@ -4,6 +4,8 @@ package org.mbari.m3.jsharktopoda.javafx;
 /**
  * Created by brian on 4/29/14.
  */
+import de.jensd.fx.glyphs.materialicons.MaterialIcon;
+import de.jensd.fx.glyphs.materialicons.utils.MaterialIconFactory;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -12,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.image.WritableImage;
@@ -20,9 +23,12 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.mbari.awt.image.ImageUtilities;
 import org.mbari.m3.jsharktopoda.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -41,27 +47,37 @@ public class MoviePaneController implements Initializable {
     private AnchorPane anchorPane;
 
     @FXML
-    private TextField maxTimecodeTextField;
+    private MediaView mediaView;
+
+    @FXML
+    private Button playButton;
+
+    @FXML
+    private Label timeLabel;
 
     @FXML
     private Slider scrubber;
 
     @FXML
-    private MediaView mediaView;
-
-    @FXML
-    private TextField timecodeTextField;
-
-    @FXML
-    private Button playButton;
+    private Label maxTimeLabel;
 
     private MediaPlayer mediaPlayer;
 
     private BooleanProperty ready = new SimpleBooleanProperty(false);
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private Text playIcon;
+    private Text pauseIcon;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        MaterialIconFactory iconFactory = MaterialIconFactory.get();
+        playButton.setText(null);
+        playIcon = iconFactory.createIcon(MaterialIcon.PLAY_ARROW, "30px");
+        pauseIcon = iconFactory.createIcon(MaterialIcon.PAUSE, "30px");
+        playButton.setGraphic(playIcon);
         mediaView.setPreserveRatio(true);
         mediaView.fitWidthProperty().bind(anchorPane.widthProperty());
         mediaView.fitHeightProperty().bind(anchorPane.heightProperty());
@@ -83,8 +99,8 @@ public class MoviePaneController implements Initializable {
         return mediaPlayer;
     }
 
-    public TextField getMaxTimecodeTextField() {
-        return maxTimecodeTextField;
+    public Label getMaxTimeLabel() {
+        return maxTimeLabel;
     }
 
     public void setMediaLocation(String mediaLocation, Consumer<MoviePaneController> onReadyRunnable) {
@@ -107,26 +123,23 @@ public class MoviePaneController implements Initializable {
         // --- Configure MediaPlayer
         mediaPlayer.currentTimeProperty().addListener(observable -> updateValues());
 
-        mediaPlayer.setOnPlaying(() -> playButton.setText("||"));
+        mediaPlayer.setOnPlaying(() -> playButton.setGraphic(pauseIcon));
 
-        mediaPlayer.setOnPaused(() -> playButton.setText(">"));
+        mediaPlayer.setOnPaused(() -> playButton.setGraphic(playIcon));
 
         mediaPlayer.setOnReady(() -> onReadyRunnable.accept(this));
 
-//        mediaPlayer.setOnReady(() -> {
-//            Media m = mediaPlayer.getMedia();
-//            Timecode timecode = JFXUtilities.jfxDurationToTimecode(m.getDuration());
-//            Platform.runLater(() -> maxTimecodeTextField.setText(timecode.toString()));
-//            updateValues();
-//            onReadyRunnable.accept(this);
-//            ready.setValue(true);
-//        });
+        mediaPlayer.setOnEndOfMedia(() -> playButton.setGraphic(playIcon));
 
-        mediaPlayer.setOnEndOfMedia(() -> playButton.setText(">"));
+        mediaPlayer.currentTimeProperty().addListener((obs, oldv, newv) -> {
+            String time = JFXUtilities.formatSeconds(Math.round(newv.toSeconds()));
+            timeLabel.setText(time);
+        });
 
         // ---  Configure play button
         playButton.setOnAction((e) -> {
             MediaPlayer.Status status = mediaPlayer.getStatus();
+            log.debug("PLAY BUTTON TOGGLED: Current mediaPlayer status = " + status);
             System.out.println(status);
             if (status == MediaPlayer.Status.UNKNOWN ||  status == MediaPlayer.Status.HALTED) {
                 // Do nothing
@@ -136,9 +149,7 @@ public class MoviePaneController implements Initializable {
             if (status == MediaPlayer.Status.PLAYING) {
                 mediaPlayer.pause();
             }
-            else if (status == MediaPlayer.Status.PAUSED
-                    || status == MediaPlayer.Status.READY
-                    || status == MediaPlayer.Status.STOPPED) {
+            else {
                 mediaPlayer.play();
             }
 
@@ -218,11 +229,11 @@ public class MoviePaneController implements Initializable {
     }
 
     protected void updateValues() {
-        if (timecodeTextField != null && scrubber != null && mediaPlayer != null) {
+        if (timeLabel != null && scrubber != null && mediaPlayer != null) {
             Platform.runLater(() -> {
                 Duration currentTime = mediaPlayer.getCurrentTime();
                 Duration totalTime = mediaPlayer.getMedia().getDuration();
-                timecodeTextField.setText(JFXUtilities.formatSeconds(Math.round(currentTime.toSeconds())));
+                timeLabel.setText(JFXUtilities.formatSeconds(Math.round(currentTime.toSeconds())));
                 scrubber.setDisable(totalTime.isUnknown());
                 if (!scrubber.isDisabled() && totalTime.greaterThan(Duration.ZERO) && !scrubber.isValueChanging()) {
                     scrubber.setValue(currentTime.divide(totalTime.toMillis()).toMillis() * 100D);
