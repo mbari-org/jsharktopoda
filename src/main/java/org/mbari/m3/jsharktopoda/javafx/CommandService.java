@@ -4,18 +4,17 @@ import com.google.gson.Gson;
 import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.Subject;
-import javafx.application.Platform;
 import javafx.scene.media.MediaPlayer;
-import org.mbari.m3.jsharktopoda.javafx.MovieStageController;
+import org.mbari.io.FileUtilities;
 import org.mbari.m3.jsharktopoda.udp.GenericCommand;
 import org.mbari.m3.jsharktopoda.udp.GenericResponse;
 import org.mbari.m3.jsharktopoda.udp.UdpIO;
 import org.mbari.m3.jsharktopoda.udp.Video;
+import org.mbari.net.URLUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
@@ -36,20 +35,26 @@ public class CommandService {
     private final Map<UUID, MovieStageController> controllers = new ConcurrentHashMap<>();
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final Gson gson = UdpIO.newGson();
+    private final FramecaptureUdpIO framecaptureIO;
 
     public CommandService(Subject<GenericCommand> commandSubject, Subject<GenericResponse> responseSubject) {
         this.commandSubject = commandSubject;
         this.responseSubject = responseSubject;
+        this.framecaptureIO = new FramecaptureUdpIO(this, commandSubject);
         Scheduler scheduler = Schedulers.from(new PlatformExecutor());
         commandSubject.observeOn(scheduler)
                 .subscribe(this::handleCommand);
+    }
+
+    public Gson getGson() {
+        return gson;
     }
 
     private void handleCommand(GenericCommand cmd) {
         String c = cmd.getCommand().toLowerCase();
         switch (c) {
             case "connect":
-                // TODO configure framecapture UDP. This should be done in the UdpIO?
+                // Handled in FramecaptureUdpIO
                 break;
             case "open":
                 doOpen(cmd);
@@ -82,7 +87,7 @@ public class CommandService {
                 doSeekElapsedTime(cmd);
                 break;
             case "framecapture":
-                doFramecapture(cmd);
+                //doFramecapture(cmd);
                 break;
             case "frame advance":
                 doFrameAdvance(cmd);
@@ -260,8 +265,10 @@ public class CommandService {
         responseSubject.onNext(r);
     }
 
-    private void doFramecapture(GenericCommand cmd) {
-        GenericResponse r = new GenericResponse(cmd.getCommand());
+    public CompletableFuture<GenericResponse> doFramecapture(GenericCommand cmd) {
+        CompletableFuture<GenericResponse> f = new CompletableFuture<>();
+        GenericResponse r = new GenericResponse(cmd);
+        r.setImageReferenceUuid(cmd.getImageReferenceUuid());
         r.setStatus("failed");
         if (cmd.getUuid() != null &&
                 controllers.containsKey(cmd.getUuid()) &&
@@ -274,19 +281,21 @@ public class CommandService {
             Thread thread = new Thread(() -> {
                 try {
                     javafx.util.Duration currentTime = controller.getMediaPlayer().getCurrentTime();
-                    controller.frameCapture(new File(cmd.getImageLocation()));
+                    URL url = new URL(cmd.getImageLocation());
+                    File file = URLUtilities.toFile(url);
+                    controller.frameCapture(file);
                     r.setImageLocation(cmd.getImageLocation());
-                    r.setImageReferenceUuid(cmd.getImageReferenceUuid());
                     r.setElapsedTime(Duration.ofMillis(Math.round(currentTime.toMillis())));
                     r.setStatus("ok");
                 } catch (Exception e) {
                     log.warn("Failed to capture image and save to " + cmd.getImageLocation(), e);
                 }
-                responseSubject.onNext(r);
+                f.complete(r);
             });
             thread.setDaemon(true);
             thread.run();
         }
+        return f;
     }
 
 

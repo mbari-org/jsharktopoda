@@ -49,17 +49,23 @@ public class UdpIO {
         receiverThread.start();
     }
 
+    public void close() {
+        ok = false;
+        commandSubject.onComplete();
+        responseSubject.onComplete();
+    }
+
     private void doResponse(GenericResponse response) {
         if (response.isResponseExpected()) {
             try {
                 DatagramSocket s = getServer();
                 byte[] b = gson.toJson(response).getBytes();
+                log.debug("Sending " + new String(b));
                 DatagramPacket packet = new DatagramPacket(b,
                         b.length,
                         response.getPacketAddress(),
                         response.getPacketPort());
                 s.send(packet);
-                log.debug("Sending " + new String(b));
             } catch (Exception e) {
                 log.error("UDP response failed", e);
             }
@@ -98,6 +104,7 @@ public class UdpIO {
 
         });
     }
+
 
 
 
