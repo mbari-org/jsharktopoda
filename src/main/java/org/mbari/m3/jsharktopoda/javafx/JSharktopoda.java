@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -80,8 +81,8 @@ public class JSharktopoda extends Application {
         });
 
 
-        VBox vBox = new VBox(powerButton, settingsButton, openButton);
-        Scene scene = new Scene(vBox);
+        HBox pane = new HBox(powerButton, settingsButton, openButton);
+        Scene scene = new Scene(pane);
         primaryStage.setScene(scene);
         primaryStage.show();
         primaryStage.setOnCloseRequest(event -> {
