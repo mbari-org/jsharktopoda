@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Tooltip;
@@ -136,9 +137,7 @@ public class JSharktopoda extends Application {
             urlDialog.getEditor().setText(null);
         });
 
-
-
-        HBox pane = new HBox(powerButton, settingsButton, openButton);
+        HBox pane = new HBox(powerButton, settingsButton, openButton, openUrlButton);
         Scene scene = new Scene(pane);
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
