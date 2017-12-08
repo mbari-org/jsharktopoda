@@ -22,6 +22,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
@@ -37,6 +38,8 @@ public class JSharktopoda extends Application {
     private TextInputDialog urlDialog;
     private TextInputDialog portDialog;
     private ResourceBundle i18n;
+    private final Class prefNodeKey = getClass();
+
 
     public static void main(String[] args) {
         launch(args);
@@ -58,7 +61,7 @@ public class JSharktopoda extends Application {
             }
         }
         else {
-            Preferences prefs = Preferences.userNodeForPackage(getClass());
+            Preferences prefs = Preferences.userNodeForPackage(prefNodeKey);
             int port = prefs.getInt("port", 8800);
             setPort(port);
         }
@@ -79,9 +82,7 @@ public class JSharktopoda extends Application {
         settingsButton.setGraphic(settingsIcon);
         settingsButton.setOnAction(event -> {
             Optional<String> opt = getPortDialog().showAndWait();
-            opt.ifPresent(port -> {
-
-            });
+            opt.ifPresent(port -> setPort(Integer.parseInt(port)));
         });
 
         fileChooser = new FileChooser();
@@ -155,8 +156,13 @@ public class JSharktopoda extends Application {
         io = new UdpIO(port);
         commandService = new CommandService(io.getCommandSubject(), io.getResponseSubject());
         getPortDialog().getEditor().setText(port + "");
-        Preferences prefs = Preferences.userNodeForPackage(getClass());
+        Preferences prefs = Preferences.userNodeForPackage(prefNodeKey);
         prefs.putInt("port", port);
+        try {
+            prefs.flush();
+        } catch (BackingStoreException e) {
+            log.warn("Failed to save port number to prefs", e);
+        }
     }
 
     private TextInputDialog getPortDialog() {

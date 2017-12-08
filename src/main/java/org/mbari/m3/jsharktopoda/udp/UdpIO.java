@@ -60,12 +60,12 @@ public class UdpIO {
             try {
                 DatagramSocket s = getServer();
                 byte[] b = gson.toJson(response).getBytes();
+                log.debug("Sending " + new String(b));
                 DatagramPacket packet = new DatagramPacket(b,
                         b.length,
                         response.getPacketAddress(),
                         response.getPacketPort());
                 s.send(packet);
-                log.debug("Sending " + new String(b));
             } catch (Exception e) {
                 log.error("UDP response failed", e);
             }

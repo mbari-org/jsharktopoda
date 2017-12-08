@@ -16,7 +16,6 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.Media;
@@ -26,6 +25,7 @@ import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.mbari.awt.image.ImageUtilities;
+import org.mbari.m3.jsharktopoda.FrameCaptureService;
 import org.mbari.m3.jsharktopoda.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +35,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 
-public class MoviePaneController implements Initializable {
+public class MoviePaneController implements Initializable, FrameCaptureService {
 
     @FXML
     private AnchorPane anchorPane;
@@ -69,6 +66,8 @@ public class MoviePaneController implements Initializable {
 
     private Text playIcon;
     private Text pauseIcon;
+
+    private final ExecutorService imageWriterExecutor = Executors.newCachedThreadPool();
 
 
     @Override
@@ -192,13 +191,16 @@ public class MoviePaneController implements Initializable {
         if (mediaView != null) {
             Platform.runLater(() -> {
                 WritableImage image = mediaView.snapshot(new SnapshotParameters(), null);
-                log.debug("Saving image to " + target.getAbsolutePath());
-                try {
-                    ImageUtilities.saveImage(SwingFXUtils.fromFXImage(image, null), target);
-                } catch (IOException e) {
-                    // TODO fix exception handling
-                    System.out.println("Failed to write " + target.getAbsolutePath());
-                }
+                Runnable r = () -> {
+                    log.debug("Saving image to " + target.getAbsolutePath());
+                    try {
+                        ImageUtilities.saveImage(SwingFXUtils.fromFXImage(image, null), target);
+                    } catch (IOException e) {
+                        // TODO fix exception handling
+                        System.out.println("Failed to write " + target.getAbsolutePath());
+                    }
+                };
+                imageWriterExecutor.execute(r);
             });
 
             /*

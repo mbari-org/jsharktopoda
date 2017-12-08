@@ -12,6 +12,7 @@ import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import org.mbari.m3.jsharktopoda.FrameCaptureService;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -25,7 +26,7 @@ import java.util.function.Consumer;
  * @author Brian Schlining
  * @since 2017-11-07T15:02:00
  */
-public class MovieStageController {
+public class MovieStageController implements FrameCaptureService {
 
     private MoviePaneController controller;
     private final String movieLocation;
