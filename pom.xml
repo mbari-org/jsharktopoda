@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.mbari.vars</groupId>
   <artifactId>jsharktopoda</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.1.3</version>
   <packaging>jar</packaging>
   <name>jsharktopoda</name>
   <url>http://maven.apache.org</url>
