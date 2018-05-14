@@ -17,4 +17,4 @@ A java implementation of a remote control is available in the [vcr4j-sharktopoda
 
 ## Download
 
-You can download JSharktopoda, as a Java jar, from [bintray](https://bintray.com/hohonuuli/generic/download_file?file_path=jsharktopoda-0.1.2-app.jar)
+You can download JSharktopoda, as a Java jar, from [bintray](https://bintray.com/hohonuuli/generic/download_file?file_path=jsharktopoda-0.1.3-app.jar)
