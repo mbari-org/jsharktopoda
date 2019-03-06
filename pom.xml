@@ -203,6 +203,26 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jmod-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>list</id>
+            <goals>
+              <goal>list</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+          <execution>
+            <id>describe</id>
+            <goals>
+              <goal>describe</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.6.0</version>
@@ -225,38 +245,12 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.zenjava</groupId>
-        <artifactId>javafx-maven-plugin</artifactId>
-        <version>8.8.3</version>
+        <artifactId>maven-jlink-plugin</artifactId>
+        <version>3.0.0-alpha-1</version>
+        <extensions>true</extensions>
         <configuration>
-          <mainClass>${app.mainClass}</mainClass>
-          <verbose>true</verbose>
-          <identifier>JSharktopoda</identifier>
-          <vendor>Monterey Bay Aquarium Research Institute</vendor>
-          <appName>${project.name}</appName>
-          <bundleArguments>
-            <!-- to include "dtjava.js" and other related files, set this to TRUE -->
-            <jnlp.includeDT>true</jnlp.includeDT>
-            <jnlp.outfile>${project.name}</jnlp.outfile>
-          </bundleArguments>
+          <!-- configuration elements goes here -->
         </configuration>
-        <executions>
-          <execution>
-            <!-- required before build-native -->
-            <id>create-jfxjar</id>
-            <phase>package</phase>
-            <goals>
-              <goal>build-jar</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>create-native</id>
-            <phase>package</phase>
-            <goals>
-              <goal>build-native</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

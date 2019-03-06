@@ -1,0 +1,67 @@
+plugins {
+  id 'application'
+  id 'org.openjfx.javafxplugin' version '0.0.7'
+}
+
+version = "0.2.0"
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven {url 'http://dl.bintray.com/jerady/maven'}
+    maven {url 'http://dl.bintray.com/hohonuuli/maven' }
+}
+
+javafx {
+    modules = [ 'javafx.controls', 'javafx.media', 'javafx.fxml', 'javafx.swing']
+}
+
+def mbarix4j = '1.10.0'
+def vcr4j = '4.0.2'
+dependencies {
+    implementation 'io.reactivex.rxjava2:rxjavafx:2.2.2'
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation "com.jfoenix:jfoenix:9.0.8"
+    implementation "de.jensd:fontawesomefx-commons:11.0"
+    implementation "de.jensd:fontawesomefx-materialicons:2.2.0-11"
+    implementation "org.mbari:mbarix4j:${mbarix4j}"
+    implementation "org.mbari.vcr4j:vcr4j-core:${vcr4j}"
+    implementation "org.mbari.vcr4j:vcr4j-sharktopoda:${vcr4j}"
+    implementation "uk.co.caprica:vlcj:3.10.1"
+    runtime 'ch.qos.logback:logback-classic:1.2.3'
+    testImplementation 'junit:junit:4.12'
+}
+
+
+
+application {
+    mainClassName = 'jsharktopoda/org.mbari.m3.jsharktopoda.javafx.JSharktopoda'
+}
+
+
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.mbari.m3.jsharktopoda.javafx.JSharktopoda'
+    }
+}
+
+def java_home = System.getenv('JAVA_HOME')
+task link(type: Exec) {
+    dependsOn 'clean'
+    dependsOn 'jar'
+
+    workingDir 'build'
+
+    commandLine "${java_home}/bin/jlink", '--module-path', "libs${File.pathSeparatorChar}${java_home}/jmods",
+            '--add-modules', 'jsharktopoda', '--launcher', 'jsharktopoda=jsharktopoda/org.mbari.m3.jsharktopoda.javafx.JSharktopoda', '--output', 'dist', '--strip-debug',
+            '--compress', '2', '--no-header-files', '--no-man-pages'
+}
+
+task copyToLib(type: Copy) {
+    into "$buildDir/output/lib"
+    from configurations.runtime
+}
