@@ -1,6 +1,8 @@
 plugins {
   id 'application'
   id 'org.openjfx.javafxplugin' version '0.0.7'
+  id "org.beryx.jlink" version "2.6.5"
+  id "org.javamodularity.moduleplugin" version "1.1.1"
 }
 
 version = "0.2.0"
@@ -36,9 +38,9 @@ dependencies {
 }
 
 
-
+mainClassName = 'jsharktopoda/org.mbari.m3.jsharktopoda.javafx.JSharktopoda'
 application {
-    mainClassName = 'jsharktopoda/org.mbari.m3.jsharktopoda.javafx.JSharktopoda'
+    mainClassName = mainClassName
 }
 
 
@@ -61,7 +63,15 @@ task link(type: Exec) {
             '--compress', '2', '--no-header-files', '--no-man-pages'
 }
 
-task copyToLib(type: Copy) {
-    into "$buildDir/output/lib"
-    from configurations.runtime
+jlink {
+  mergedModule {
+        requires 'javafx.controls'
+        requires 'javafx.media'
+        requires 'javafx.fxml'
+        requires 'javafx.swing'
+  }
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher{
+        name = 'jsharktopoda'
+    }
 }
