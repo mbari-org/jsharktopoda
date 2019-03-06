@@ -245,12 +245,23 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jlink-plugin</artifactId>
         <version>3.0.0-alpha-1</version>
-        <extensions>true</extensions>
+        <extensions>true</extensions> <!-- 2 -->
         <configuration>
-          <!-- configuration elements goes here -->
+          <noHeaderFiles>true</noHeaderFiles>
+          <noManPages>true</noManPages>
+          <stripDebug>true</stripDebug>
         </configuration>
+        <dependencies>
+          <dependency>
+            <!-- 3 -->
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>7.0</version>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>
