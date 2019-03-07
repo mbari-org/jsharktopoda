@@ -1,4 +1,4 @@
-module jsharktopoda {
+open module jsharktopoda {
   requires com.jfoenix;
   // requires de.jensd.fx.fontawesomefx.commons;
   // requires de.jensd.fx.fontawesomefx.materialicons;
