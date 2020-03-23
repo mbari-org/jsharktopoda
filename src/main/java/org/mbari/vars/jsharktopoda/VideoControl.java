@@ -2,9 +2,6 @@ package org.mbari.vars.jsharktopoda;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSlider;
-import de.jensd.fx.glyphs.GlyphsFactory;
-import de.jensd.fx.glyphs.materialicons.MaterialIcon;
-import de.jensd.fx.glyphs.materialicons.utils.MaterialIconFactory;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -12,6 +9,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import org.mbari.m3.jsharktopoda.javafx.MaterialIcons;
 
 
 /**
@@ -28,10 +26,9 @@ public class VideoControl extends Pane {
     Button playButton;
     Label elapsedTimeLabel = new Label("00:00");
     Label durationLabel = new Label("00:00");
-    private GlyphsFactory glyphsFactory = MaterialIconFactory.get();
     private Color color = Color.LIGHTGRAY;
-    Text volumeUpIcon = glyphsFactory.createIcon(MaterialIcon.VOLUME_UP, "20px");
-    Text volumeDownIcon = glyphsFactory.createIcon(MaterialIcon.VOLUME_DOWN, "20px");
+    Text volumeUpIcon = MaterialIcons.VOLUME_UP;
+    Text volumeDownIcon = MaterialIcons.VOLUME_DOWN;
 
     public VideoControl() {
         // orange: "0xBF360C"
@@ -82,7 +79,7 @@ public class VideoControl extends Pane {
 
     protected Button getFastForwardButton() {
         if (fastForwardButton == null) {
-            Text icon = glyphsFactory.createIcon(MaterialIcon.FAST_FORWARD, "30px");
+            Text icon = MaterialIcons.FAST_FORWARD;
             icon.setFill(color);
             fastForwardButton = new JFXButton();
             fastForwardButton.setGraphic(icon);
@@ -94,7 +91,7 @@ public class VideoControl extends Pane {
 
     protected Button getRewindButton() {
         if (rewindButton == null) {
-            Text icon = glyphsFactory.createIcon(MaterialIcon.FAST_REWIND, "30px");
+            Text icon = MaterialIcons.FAST_REWIND;
             icon.setFill(color);
             rewindButton = new JFXButton();
             rewindButton.setGraphic(icon);
@@ -106,7 +103,7 @@ public class VideoControl extends Pane {
 
     protected Button getPlayButton() {
         if (playButton == null) {
-            Text icon = glyphsFactory.createIcon(MaterialIcon.PLAY_ARROW, "50px");
+            Text icon = MaterialIcons.PLAY_ARROW;
             icon.setFill(color);
             playButton = new JFXButton();
             playButton.setGraphic(icon);

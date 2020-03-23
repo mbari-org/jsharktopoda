@@ -1,7 +1,5 @@
 package org.mbari.m3.jsharktopoda.javafx;
 
-import de.jensd.fx.glyphs.materialicons.MaterialIcon;
-import de.jensd.fx.glyphs.materialicons.utils.MaterialIconFactory;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -10,7 +8,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -41,11 +38,9 @@ public class JSharktopoda extends Application {
     private ResourceBundle i18n;
     private final Class prefNodeKey = getClass();
 
-
     public static void main(String[] args) {
         launch(args);
     }
-
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -56,19 +51,16 @@ public class JSharktopoda extends Application {
             try {
                 int port = Integer.parseInt(args.get(0));
                 setPort(port);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.warn("Unable to parse " + args.get(0) + " as a port number");
             }
-        }
-        else {
+        } else {
             Preferences prefs = Preferences.userNodeForPackage(prefNodeKey);
             int port = prefs.getInt("port", 8800);
             setPort(port);
         }
 
-        MaterialIconFactory iconFactory = MaterialIconFactory.get();
-        Text powerIcon = iconFactory.createIcon(MaterialIcon.POWER_SETTINGS_NEW, "30px");
+        Text powerIcon = MaterialIcons.POWER_SETTINGS_NEW;
         Button powerButton = new Button();
         powerButton.setTooltip(new Tooltip(i18n.getString("app.quit")));
         powerButton.setGraphic(powerIcon);
@@ -77,7 +69,7 @@ public class JSharktopoda extends Application {
             System.exit(0);
         });
 
-        Text settingsIcon = iconFactory.createIcon(MaterialIcon.SETTINGS, "30px");
+        Text settingsIcon = MaterialIcons.SETTINGS;
         Button settingsButton = new Button();
         settingsButton.setTooltip(new Tooltip(i18n.getString("app.settings")));
         settingsButton.setGraphic(settingsIcon);
@@ -90,7 +82,7 @@ public class JSharktopoda extends Application {
         fileChooser.setTitle(i18n.getString("filechooser.title"));
         fileChooser.getExtensionFilters()
                 .add(new FileChooser.ExtensionFilter(i18n.getString("filechooser.filtername"), "*.mp4"));
-        Text openFileIcon = iconFactory.createIcon(MaterialIcon.COMPUTER, "30px");
+        Text openFileIcon = MaterialIcons.COMPUTER;
         Button openButton = new Button();
         openButton.setTooltip(new Tooltip(i18n.getString("app.file")));
         openButton.setGraphic(openFileIcon);
@@ -103,8 +95,7 @@ public class JSharktopoda extends Application {
                 try {
                     cmd.setUrl(file.toURI().toURL());
                     io.getCommandSubject().onNext(cmd);
-                }
-                catch (MalformedURLException e) {
+                } catch (MalformedURLException e) {
                     log.error("Unable to open file", e);
                 }
             }
@@ -116,7 +107,7 @@ public class JSharktopoda extends Application {
         urlDialog.setHeaderText(i18n.getString("urlchooser.header"));
         urlDialog.setContentText(i18n.getString("urlchooser.content"));
         urlDialog.getEditor().setPromptText(i18n.getString("urlchooser.prompt"));
-        Text openUrlIcon = iconFactory.createIcon(MaterialIcon.CLOUD, "30px");
+        Text openUrlIcon = MaterialIcons.CLOUD;
         Button openUrlButton = new Button();
         openUrlButton.setTooltip(new Tooltip(i18n.getString("app.url")));
         openUrlButton.setGraphic(openUrlIcon);
@@ -129,8 +120,7 @@ public class JSharktopoda extends Application {
                 try {
                     cmd.setUrl(new URL(url));
                     io.getCommandSubject().onNext(cmd);
-                }
-                catch (MalformedURLException e) {
+                } catch (MalformedURLException e) {
                     log.error("Unable to open file", e);
                 }
             });
@@ -173,7 +163,7 @@ public class JSharktopoda extends Application {
             TextField portEditor = portDialog.getEditor();
             portEditor.setPromptText(i18n.getString("portchooser.prompt"));
             // Accept numbers only
-            portEditor.textProperty().addListener((obs, oldv, newv) ->{
+            portEditor.textProperty().addListener((obs, oldv, newv) -> {
                 if (!newv.matches("\\d*")) {
                     portEditor.setText(newv.replaceAll("[^\\d]", ""));
                 }
@@ -181,6 +171,5 @@ public class JSharktopoda extends Application {
         }
         return portDialog;
     }
-
 
 }

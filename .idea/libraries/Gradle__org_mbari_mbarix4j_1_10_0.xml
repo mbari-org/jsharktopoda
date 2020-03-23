@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.mbari:mbarix4j:1.10.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.mbari/mbarix4j/1.10.0/eea64cf52031458fc975eacd377c74fead2744dc/mbarix4j-1.10.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.mbari/mbarix4j/1.10.0/8f369c61a7035c82ebd8c41556c4ef97b876b097/mbarix4j-1.10.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

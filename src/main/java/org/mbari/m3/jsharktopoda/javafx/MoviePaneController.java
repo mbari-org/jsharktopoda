@@ -4,8 +4,6 @@ package org.mbari.m3.jsharktopoda.javafx;
 /**
  * Created by brian on 4/29/14.
  */
-import de.jensd.fx.glyphs.materialicons.MaterialIcon;
-import de.jensd.fx.glyphs.materialicons.utils.MaterialIconFactory;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -72,10 +70,10 @@ public class MoviePaneController implements Initializable, FrameCaptureService {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        MaterialIconFactory iconFactory = MaterialIconFactory.get();
         playButton.setText(null);
-        playIcon = iconFactory.createIcon(MaterialIcon.PLAY_ARROW, "30px");
-        pauseIcon = iconFactory.createIcon(MaterialIcon.PAUSE, "30px");
+        playIcon = MaterialIcons.PLAY_ARROW_50PX;
+        playIcon = MaterialIcons.PLAY_ARROW;
+        pauseIcon = MaterialIcons.PAUSE;
         playButton.setGraphic(playIcon);
         mediaView.setPreserveRatio(true);
         mediaView.fitWidthProperty().bind(anchorPane.widthProperty());
