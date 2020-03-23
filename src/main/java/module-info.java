@@ -3,6 +3,7 @@ module jsharktopoda {
   requires de.jensd.fx.fontawesomefx.commons;
   requires de.jensd.fx.fontawesomefx.materialicons;
   requires java.prefs;
+  requires javafx.base;
   requires javafx.controls;
   requires javafx.fxml;
   requires javafx.media;
