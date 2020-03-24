@@ -5,12 +5,12 @@ import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.Subject;
 import javafx.scene.media.MediaPlayer;
-import org.mbari.io.FileUtilities;
+import mbarix4j.io.FileUtilities;
 import org.mbari.m3.jsharktopoda.udp.GenericCommand;
 import org.mbari.m3.jsharktopoda.udp.GenericResponse;
 import org.mbari.m3.jsharktopoda.udp.UdpIO;
 import org.mbari.m3.jsharktopoda.udp.Video;
-import org.mbari.net.URLUtilities;
+import mbarix4j.net.URLUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -22,7 +22,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import org.mbari.awt.image.ImageUtilities;
+import mbarix4j.awt.image.ImageUtilities;
 import org.mbari.m3.jsharktopoda.FrameCaptureService;
 import org.mbari.m3.jsharktopoda.Preconditions;
 import org.slf4j.Logger;
