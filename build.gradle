@@ -97,11 +97,13 @@ jlink {
 
     jpackage {
         jpackageHome = System.getenv("JPACKAGE_HOME")
+        // jpackageHome = "C:\\Program Files\\AdoptOpenJDK\\jdk-14.0.0.36-hotspot"
 
         def customInstallerOptions = [
-                "--copyright", "Monterey Bay Aquarium Research Institute",
-                "--vendor", "org.mbari",
-                "--app-version", project.version
+                "--app-version", project.version,
+                "--copyright", "Monterey Bay Aquarium Research Institute 2020",
+                "--name", project.name,
+                "--vendor", "org.mbari"
         ]
 
         if  (org.gradle.internal.os.OperatingSystem.current().isLinux()) {
@@ -109,6 +111,11 @@ jlink {
         }
         else if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
             installerType = "msi"
+            customInstallerOptions.addAll([
+                "--win-upgrade-uuid", "bd89f21a-a2c3-49c1-9502-345199c3ed8e",
+                "--win-menu-group", "VARS",
+                "--win-menu"
+            ])
         }
         else {
             installerType = "dmg"
