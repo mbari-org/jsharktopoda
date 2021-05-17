@@ -16,7 +16,9 @@ open module jsharktopoda {
   requires org.kordamp.ikonli.javafx;
   requires org.kordamp.ikonli.material;
   requires org.slf4j;
+  requires vcr4j.core;
   requires vlcj;
+
 
   exports org.mbari.m3.jsharktopoda.javafx;
 

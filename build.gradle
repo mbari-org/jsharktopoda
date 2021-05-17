@@ -15,9 +15,17 @@ targetCompatibility = 11
 repositories {
     jcenter()
     mavenCentral()
-    maven {url 'http://dl.bintray.com/jerady/maven'}
-    maven {url 'http://dl.bintray.com/hohonuuli/maven' }
-    maven {url 'http://dl.bintray.com/org-mbari/maven' }
+    maven {
+        name = "MBARI"
+        url = uri("https://maven.pkg.github.com/mbari-org/maven")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
+    // maven {url 'http://dl.bintray.com/jerady/maven'}
+    // maven {url 'http://dl.bintray.com/hohonuuli/maven' }
+    // maven {url 'http://dl.bintray.com/org-mbari/maven' }
 }
 
 javafx {
@@ -50,7 +58,7 @@ test {
     }
 }
 
-def vcr4j = "4.3.2.jre11"
+def vcr4j = "4.4.1.jre11"
 dependencies {
     implementation 'io.reactivex.rxjava2:rxjavafx:2.2.2'
     implementation 'org.kordamp.ikonli:ikonli-material-pack:11.3.5'
