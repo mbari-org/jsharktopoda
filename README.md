@@ -12,6 +12,20 @@ JavaFX-based video player for macOS, Linux, and Windows. Provides remote UDP int
 
 A java implementation of a remote control is available in the [vcr4j-sharktopoda](https://github.com/mbari-media-management/vcr4j/tree/master/vcr4j-sharktopoda) module of [vcr4j](https://github.com/mbari-media-management/vcr4j)
 
+## Build
+
+Builds are tested using Java 11 for compilation and Java 14 for packaging. 
+
+```bash
+export JPACKAGE_HOME=/path/to/jdk14
+gradlew jpackage --info
+```
+
+The generated applications are:
+
+- Applicaiton image including packaged JDK: `build/image`
+- Application packaged for OS: `build/jpackage`
+
 ## Screenshot
 
 ![Screenshot](src/site/resources/images/jsharktopoda.png)
