@@ -148,31 +148,27 @@ public class VideoControl extends Pane {
                 .addListener((observable, oldValue, newValue) -> durationLabel.setText(formatSeconds((long) newValue.toSeconds())));
     }
 
-    public void setDirectMediaPlayer(uk.co.caprica.vlcj.player.MediaPlayer mediaPlayer) {
-        long millis = mediaPlayer.getMediaMeta().getLength();
-        long seconds = millis / 1000;
-        String s = formatSeconds(seconds);
-        durationLabel.setText(s);
+    // public void setDirectMediaPlayer(uk.co.caprica.vlcj.player.MediaPlayer mediaPlayer) {
+    //     long millis = mediaPlayer.getMediaMeta().getLength();
+    //     long seconds = millis / 1000;
+    //     String s = formatSeconds(seconds);
+    //     durationLabel.setText(s);
 
-        JFXSlider slider = getScrubber();
-        slider.setMax(millis);
+    //     JFXSlider slider = getScrubber();
+    //     slider.setMax(millis);
 
-        slider.valueProperty().addListener(observable -> {
-            if (slider.isValueChanging() || mediaPlayer.isSeekable()) {
-                float position = (float) (slider.getValue() / (double) millis);
-                mediaPlayer.setPosition(position);
-            }
-            else {
-                long m = (long) (millis * mediaPlayer.getPosition());
-                slider.setValue(m);
-            }
-        });
+    //     slider.valueProperty().addListener(observable -> {
+    //         if (slider.isValueChanging() || mediaPlayer.isSeekable()) {
+    //             float position = (float) (slider.getValue() / (double) millis);
+    //             mediaPlayer.setPosition(position);
+    //         }
+    //         else {
+    //             long m = (long) (millis * mediaPlayer.getPosition());
+    //             slider.setValue(m);
+    //         }
+    //     });
 
-
-
-
-
-    }
+    // }
 
     private String formatSeconds(long seconds) {
         return String.format("%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));
