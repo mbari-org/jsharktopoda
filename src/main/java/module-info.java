@@ -13,7 +13,6 @@ open module jsharktopoda {
   requires javafx.media;
   requires javafx.swing;
   requires mbarix4j;
-  requires org.kordamp.iconli.core;
   requires org.kordamp.ikonli.javafx;
   requires org.kordamp.ikonli.material;
   requires org.slf4j;
