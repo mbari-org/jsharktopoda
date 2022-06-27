@@ -13,7 +13,7 @@ sourceCompatibility = 17
 targetCompatibility = 17
 
 repositories {
-    jcenter()
+    mavenLocal()
     mavenCentral()
     maven {
         name = "MBARI"
@@ -29,7 +29,7 @@ repositories {
 }
 
 javafx {
-    version = "18"
+    version = "18.0.1"
     modules = [ 
         'javafx.base',
         'javafx.controls',
@@ -58,7 +58,7 @@ test {
     }
 }
 
-def vcr4j = "4.4.1.jre11"
+def vcr4j = "5.0.0.jre17-SNAPSHOT"
 dependencies {
     implementation "com.jfoenix:jfoenix:9.0.10"
     implementation "io.reactivex.rxjava3:rxjava:3.1.5"
@@ -66,7 +66,7 @@ dependencies {
     implementation "org.kordamp.ikonli:ikonli-material-pack:12.3.1"
     implementation "org.mbari:mbarix4j:2.0.5.jre11"
     implementation "org.mbari.vcr4j:vcr4j-core:${vcr4j}"
-    implementation "org.mbari.vcr4j:vcr4j-sharktopoda:${vcr4j}"
+    implementation "org.mbari.vcr4j:vcr4j-remote:${vcr4j}"
     implementation "org.slf4j:slf4j-api:2.0.0-alpha7"
     runtimeOnly('ch.qos.logback:logback-classic:1.3.0-alpha16')  {
         exclude group: 'javax.activation'

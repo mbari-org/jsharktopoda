@@ -12,12 +12,13 @@ import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
-import org.mbari.m3.jsharktopoda.FrameCaptureService;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
@@ -96,7 +97,7 @@ public class MovieStageController implements FrameCaptureService {
         return controller.getMediaPlayer();
     }
 
-    public BufferedImage frameCapture(File target) throws IOException, InterruptedException, TimeoutException, ExecutionException {
+    public CompletableFuture<FrameCaptureData> frameCapture(Path target) {
         return controller.frameCapture(target);
     }
 

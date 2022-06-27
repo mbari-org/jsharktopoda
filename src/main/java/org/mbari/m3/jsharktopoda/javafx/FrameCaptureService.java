@@ -1,8 +1,10 @@
-package org.mbari.m3.jsharktopoda;
+package org.mbari.m3.jsharktopoda.javafx;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
@@ -12,5 +14,5 @@ import java.util.concurrent.TimeoutException;
  */
 public interface FrameCaptureService {
 
-    BufferedImage frameCapture(File target) throws IOException, InterruptedException, TimeoutException, ExecutionException;
+    CompletableFuture<FrameCaptureData> frameCapture(Path target);
 }
