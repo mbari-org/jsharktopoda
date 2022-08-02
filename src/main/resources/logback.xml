@@ -17,18 +17,18 @@
         </encoder>
     </appender>
 
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- Daily rollover -->
-            <fileNamePattern>${user.home}/.vars/logs/jsharktopoda.%d{yyyyMMdd}.log</fileNamePattern>
+<!--    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--            &lt;!&ndash; Daily rollover &ndash;&gt;-->
+<!--            <fileNamePattern>${user.home}/.vars/logs/jsharktopoda.%d{yyyyMMdd}.log</fileNamePattern>-->
 
-            <!-- Keep 7 days' worth of history -->
-            <maxHistory>7</maxHistory>
-        </rollingPolicy>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss} [%t] %p %c - %m%n</pattern>
-        </encoder>
-    </appender>
+<!--            &lt;!&ndash; Keep 7 days' worth of history &ndash;&gt;-->
+<!--            <maxHistory>7</maxHistory>-->
+<!--        </rollingPolicy>-->
+<!--        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
+<!--            <pattern>%d{HH:mm:ss} [%t] %p %c - %m%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
 
     <logger name="java.util.Date" level="WARN" />
     <logger name="org.mbari.vars.services.impl.annosaurus.v1.AnnoWebServiceFactory" level="DEBUG" />
@@ -38,7 +38,7 @@
     <logger name="org.gradle" level="WARN" />
 
     <root level="${LOGBACK_LEVEL}">
-        <appender-ref ref="FILE" />
+<!--        <appender-ref ref="FILE" />-->
         <appender-ref ref="CONSOLE" />
     </root>
 

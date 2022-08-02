@@ -46,7 +46,8 @@ def runtimeJvmArgs = [
         '--add-exports', 'javafx.base/com.sun.javafx.event=com.jfoenix',
         '--add-exports', 'javafx.controls/com.sun.javafx.scene.control.behavior=com.jfoenix',
         '--add-exports', 'javafx.controls/com.sun.javafx.scene.control=com.jfoenix',
-        '--add-exports', 'javafx.graphics/com.sun.javafx.stage=com.jfoenix'
+        '--add-exports', 'javafx.graphics/com.sun.javafx.stage=com.jfoenix',
+        '--add-reads', 'jsharktopoda.merged.module=org.slf4j',
 ]
 
 test {
@@ -68,7 +69,7 @@ dependencies {
     implementation "org.mbari.vcr4j:vcr4j-core:${vcr4j}"
     implementation "org.mbari.vcr4j:vcr4j-remote:${vcr4j}"
     implementation "org.slf4j:slf4j-api:2.0.0-alpha7"
-    runtimeOnly('ch.qos.logback:logback-classic:1.3.0-alpha16')  {
+    runtimeOnly('ch.qos.logback:logback-classic:1.3.0-alpha16') {
         exclude group: 'javax.activation'
     }
     runtimeOnly 'javax.servlet:javax.servlet-api:4.0.1'
