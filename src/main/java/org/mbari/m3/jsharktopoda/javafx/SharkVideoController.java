@@ -1,6 +1,7 @@
 package org.mbari.m3.jsharktopoda.javafx;
 
 
+import javafx.application.Platform;
 import org.mbari.vcr4j.remote.control.commands.FrameCapture;
 import org.mbari.vcr4j.remote.control.commands.VideoInfo;
 import org.mbari.vcr4j.remote.player.VideoController;
@@ -39,10 +40,34 @@ public class SharkVideoController implements VideoController {
     @Override
     public boolean open(UUID videoUuid, URL url) {
         if (videoUuid != null && url != null) {
+            if (controllers.containsKey(videoUuid)) {
+                return true;
+            }
+
             MovieStageController stageController = MovieStageController.newInstance(url.toExternalForm());
             stageController.readyProperty().addListener((ovs, oldv, newv) -> {
                 stageController.getStage().show();
+                log.atDebug()
+                        .log("Opening video controller for " + videoUuid + " at " +
+                                stageController.getMediaView()
+                                        .getMediaPlayer()
+                                        .getMedia()
+                                        .getSource());
             });
+
+
+
+            stageController.stageProperty()
+                            .addListener((obs, oldStage, newStage) -> {
+                                newStage.sceneProperty()
+                                        .addListener((obs2, oldScene, newScene) -> {
+                                            newScene.getWindow()
+                                                    .setOnCloseRequest(e -> {
+                                                        close(videoUuid);
+                                                    });
+                                        });
+                            });
+
             controllers.put(videoUuid, stageController);
             return true;
         }
@@ -53,7 +78,14 @@ public class SharkVideoController implements VideoController {
     public boolean close(UUID videoUuid) {
         if (videoUuid != null && controllers.containsKey(videoUuid)) {
             MovieStageController controller = controllers.remove(videoUuid);
-            controller.close();
+            if (controller != null) {
+                log.atDebug().log("Removing video controller for " + videoUuid + " at " +
+                        controller.getMediaView()
+                                .getMediaPlayer()
+                                .getMedia()
+                                .getSource());
+                controller.close();
+            }
             return true;
         }
         return false;
@@ -63,8 +95,8 @@ public class SharkVideoController implements VideoController {
     public boolean show(UUID videoUuid) {
         if (videoUuid != null && controllers.containsKey(videoUuid)) {
             MovieStageController controller = controllers.get(videoUuid);
-            //Platform.runLater(() -> controller.getStage().requestFocus());
-            controller.getStage().requestFocus();
+            Platform.runLater(() -> controller.getStage().requestFocus());
+//            controller.getStage().requestFocus();
             return true;
         }
         return false;
@@ -158,7 +190,7 @@ public class SharkVideoController implements VideoController {
         if (opt.isPresent()) {
             var controller = opt.get();
             var player = controller.getMediaPlayer();
-            var rate = player.getRate();
+            var rate = player.getCurrentRate();
             return Optional.of(rate);
         }
         return Optional.empty();
@@ -185,7 +217,7 @@ public class SharkVideoController implements VideoController {
             var controller = opt.get();
             var player = controller.getMediaPlayer();
             var time = javafx.util.Duration.millis(elapsedTime.toMillis());
-            player.seek(time);
+            Platform.runLater(() -> player.seek(time));
             return true;
         }
         return false;
@@ -195,15 +227,23 @@ public class SharkVideoController implements VideoController {
     public boolean frameAdvance(UUID videoUuid) {
         var opt = findController(videoUuid);
         if (opt.isPresent()) {
-            var controller = opt.get();
-            var player = controller.getMediaPlayer();
-            player.pause();
-            var currentTime = player.getCurrentTime();
-            var framerate = (Double) player.getMedia().getMetadata().get("framerate");
-            var dt = 1 / framerate;
-            var seekTime = currentTime.add(javafx.util.Duration.millis(dt));
-            player.seek(seekTime);
-            return true;
+            try {
+                var controller = opt.get();
+                var player = controller.getMediaPlayer();
+                player.pause();
+                var currentTime = player.getCurrentTime();
+                var framerate = (Double) player.getMedia().getMetadata().get("framerate");
+                var dt = 1 / framerate;
+                var seekTime = currentTime.add(javafx.util.Duration.millis(dt));
+                player.seek(seekTime);
+                return true;
+            }
+            catch (Exception e) {
+                log.atDebug()
+                        .setCause(e)
+                        .log("Frame advance failed");
+                return false;
+            }
         }
         return false;
     }
