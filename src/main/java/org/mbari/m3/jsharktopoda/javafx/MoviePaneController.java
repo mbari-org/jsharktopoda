@@ -23,7 +23,6 @@ import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import mbarix4j.awt.image.ImageUtilities;
-import org.mbari.m3.jsharktopoda.FrameCaptureService;
 import org.mbari.m3.jsharktopoda.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -71,7 +71,6 @@ public class MoviePaneController implements Initializable, FrameCaptureService {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         playButton.setText(null);
-        playIcon = MaterialIcons.PLAY_ARROW_50PX;
         playIcon = MaterialIcons.PLAY_ARROW;
         pauseIcon = MaterialIcons.PAUSE;
         playButton.setGraphic(playIcon);
@@ -183,49 +182,33 @@ public class MoviePaneController implements Initializable, FrameCaptureService {
         }
     }
 
-    public BufferedImage frameCapture(File target) throws IOException, InterruptedException, TimeoutException, ExecutionException {
+    public CompletableFuture<FrameCaptureData> frameCapture(Path target) {
 
-        BufferedImage bufferedImage = null;
+        var future = new CompletableFuture<FrameCaptureData>();
         if (mediaView != null) {
             Platform.runLater(() -> {
+                var currentTime = mediaView.getMediaPlayer().getCurrentTime();
                 WritableImage image = mediaView.snapshot(new SnapshotParameters(), null);
+                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
                 Runnable r = () -> {
-                    log.debug("Saving image to " + target.getAbsolutePath());
+                    log.debug("Saving image to " + target);
                     try {
-                        ImageUtilities.saveImage(SwingFXUtils.fromFXImage(image, null), target);
+                        ImageUtilities.saveImage(bufferedImage, target.toFile());
+                        var currentTimeMillis = Math.round(currentTime.toMillis());
+                        var data = new FrameCaptureData(target, currentTimeMillis, bufferedImage);
+                        future.complete(data);
                     } catch (IOException e) {
-                        // TODO fix exception handling
-                        System.out.println("Failed to write " + target.getAbsolutePath());
+                        future.completeExceptionally(e);
                     }
                 };
                 imageWriterExecutor.execute(r);
             });
-
-            /*
-                We are writing the image asynchronously (i.e. Platform.runLater()). Since we're not using any RX
-                frameworks, we have to poll the image to see if it's done being written. If we try to read it while
-                it's in a partially written state then we will get:
-
-                java.lang.IndexOutOfBoundsException: null
-                    at java.io.RandomAccessFile.readBytes(Native Method) ~[na:1.8.0_05]
-                    at java.io.RandomAccessFile.read(RandomAccessFile.java:349) ~[na:1.8.0_05]
-                    at javax.imageio.stream.FileImageInputStream.read(FileImageInputStream.java:117) ~[na:1.8.0_05]
-                    at ...
-
-             */
-            java.time.Duration timeout = java.time.Duration.ofSeconds(8);
-            CompletableFuture<BufferedImage> imageFuture = org.mbari.m3.jsharktopoda.util.ImageUtilities.readImageAsync(target, timeout);
-            bufferedImage = imageFuture.get(timeout.getSeconds(), TimeUnit.SECONDS);
-
-            if (bufferedImage == null) {
-                // TODO report error
-                //EventBus.publish(Lookup.TOPIC_NONFATAL_ERROR, failure);
-            }
-
-
+        }
+        else {
+            future.completeExceptionally(new RuntimeException("No MediaView exists in the MoviePaneController"));
         }
 
-        return bufferedImage;
+        return future;
     }
 
     protected void updateValues() {

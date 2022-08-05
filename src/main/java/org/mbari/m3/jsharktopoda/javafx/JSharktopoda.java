@@ -11,8 +11,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.mbari.m3.jsharktopoda.udp.GenericCommand;
-import org.mbari.m3.jsharktopoda.udp.UdpIO;
+import org.mbari.vcr4j.remote.player.VideoControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,8 +28,11 @@ import java.util.prefs.Preferences;
  */
 public class JSharktopoda extends Application {
 
-    private UdpIO io;
-    private CommandService commandService;
+//    private UdpIO io;
+//    private CommandService commandService;
+    private VideoControl videoControl;
+
+    private SharkVideoController videoController;
     private final Logger log = LoggerFactory.getLogger(JSharktopoda.class);
     private FileChooser fileChooser;
     private TextInputDialog urlDialog;
@@ -45,6 +47,7 @@ public class JSharktopoda extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         i18n = ResourceBundle.getBundle("i18n", Locale.getDefault());
+        videoController = new SharkVideoController();
 
         List<String> args = getParameters().getRaw();
         if (args.size() == 1) {
@@ -89,12 +92,15 @@ public class JSharktopoda extends Application {
         openButton.setOnAction(event -> {
             File file = fileChooser.showOpenDialog(primaryStage);
             if (file != null) {
-                GenericCommand cmd = new GenericCommand();
-                cmd.setCommand("open");
-                cmd.setUuid(UUID.randomUUID());
                 try {
-                    cmd.setUrl(file.toURI().toURL());
-                    io.getCommandSubject().onNext(cmd);
+                    var url = file.toURI().toURL();
+                    var opt = videoController.findControllerByUrl(url);
+                    if (opt.isPresent()) {
+                        videoController.show(opt.get().getKey());
+                    }
+                    else {
+                        videoController.open(UUID.randomUUID(), url);
+                    }
                 } catch (MalformedURLException e) {
                     log.error("Unable to open file", e);
                 }
@@ -113,13 +119,16 @@ public class JSharktopoda extends Application {
         openUrlButton.setGraphic(openUrlIcon);
         openUrlButton.setOnAction(event -> {
             Optional<String> opt = urlDialog.showAndWait();
-            opt.ifPresent(url -> {
-                GenericCommand cmd = new GenericCommand();
-                cmd.setCommand("open");
-                cmd.setUuid(UUID.randomUUID());
+            opt.ifPresent(urlString -> {
                 try {
-                    cmd.setUrl(new URL(url));
-                    io.getCommandSubject().onNext(cmd);
+                    var url = new URL(urlString);
+                    var opt2 = videoController.findControllerByUrl(url);
+                    if (opt2.isPresent()) {
+                        videoController.show(opt2.get().getKey());
+                    }
+                    else {
+                        videoController.open(UUID.randomUUID(), url);
+                    }
                 } catch (MalformedURLException e) {
                     log.error("Unable to open file", e);
                 }
@@ -139,11 +148,16 @@ public class JSharktopoda extends Application {
     }
 
     private void setPort(int port) {
-        if (io != null) {
-            io.close();
+        if (videoControl != null) {
+            videoControl.close();
         }
-        io = new UdpIO(port);
-        commandService = new CommandService(io.getCommandSubject(), io.getResponseSubject());
+        videoControl = new VideoControl.Builder()
+                .port(port)
+                .videoController(videoController)
+                .build()
+                .get();
+
+//        commandService = new CommandService(io.getCommandSubject(), io.getResponseSubject());
         getPortDialog().getEditor().setText(port + "");
         Preferences prefs = Preferences.userNodeForPackage(prefNodeKey);
         prefs.putInt("port", port);

@@ -15,7 +15,7 @@ import javafx.scene.text.Text;
  * @author Brian Schlining
  * @since 2016-08-16T15:28:00
  */
-public class VideoControl extends Pane {
+public class VideoControls extends Pane {
 
 
     JFXSlider volumeSlider;
@@ -29,7 +29,7 @@ public class VideoControl extends Pane {
     Text volumeUpIcon = MaterialIcons.VOLUME_UP;
     Text volumeDownIcon = MaterialIcons.VOLUME_DOWN;
 
-    public VideoControl() {
+    public VideoControls() {
         // orange: "0xBF360C"
 
         setStyle("-fx-background-color: #263238;");
