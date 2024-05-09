@@ -53,6 +53,12 @@ public class SharkVideoController implements VideoController {
                                         .getMediaPlayer()
                                         .getMedia()
                                         .getSource());
+
+                log.atDebug()
+                    .log(stageController.getMediaView()
+                    .getMediaPlayer()
+                    .getMedia().getDuration() + " is the duration");
+
             });
 
 
@@ -165,8 +171,9 @@ public class SharkVideoController implements VideoController {
         if (opt.isPresent()) {
             var controller = opt.get();
             var player = controller.getMediaPlayer();
-            player.setRate(rate);
+            log.atDebug().log("Playing video at rate " + rate);
             player.play();
+            player.setRate(rate);
             return true;
         }
         return false;
@@ -232,6 +239,10 @@ public class SharkVideoController implements VideoController {
                 var player = controller.getMediaPlayer();
                 player.pause();
                 var currentTime = player.getCurrentTime();
+                log.atDebug().log("Current time is " + currentTime);
+                player.getMedia().getMetadata().forEach((k, v) -> {
+                    log.atDebug().log(k + " -> " + v);
+                });
                 var framerate = (Double) player.getMedia().getMetadata().get("framerate");
                 var dt = 1 / framerate;
                 var seekTime = currentTime.add(javafx.util.Duration.millis(dt));

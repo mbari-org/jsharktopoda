@@ -25,4 +25,9 @@ public record VideoInfoImpl(UUID uuid, URL url, Long durationMillis, Double fram
     public Double getFrameRate() {
         return frameRate;
     }
+
+    @Override
+    public Boolean isKey() {
+        return false;
+    }
 }
