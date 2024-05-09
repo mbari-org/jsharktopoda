@@ -117,6 +117,7 @@ jlink {
 
         if  (org.gradle.internal.os.OperatingSystem.current().isLinux()) {
             installerType = "deb"
+            imageOptions = ["--icon", "src/jpackage/linux/jsharktopoda.png"]
         }
         else if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
             installerType = "msi"
@@ -125,6 +126,7 @@ jlink {
                 "--win-menu-group", "VARS",
                 "--win-menu"
             ])
+            imageOptions = ["--icon", "src/jpackage/windows/jsharktopoda.ico"]
         }
         else {
             installerType = "dmg"
@@ -132,8 +134,56 @@ jlink {
                 "--mac-package-name", "jsharktopoda",
                 "--mac-package-identifier", project.name
             ])
+            imageOptions = ["--icon", "src/jpackage/macos/jsharktopoda.icns"]
+
         }
         installerOptions = customInstallerOptions
 
+    }
+}
+
+tasks.jpackageImage.doLast {
+    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        def signer = System.getenv("MAC_CODE_SIGNER")
+        if (signer) {
+
+            def dirsToBeSigned= [
+                    file("${projectDir}/build/jpackage/jsharktopoda.app/Contents/runtime/Contents/Home/bin"),
+                    file("${projectDir}/build/jpackage/jsharktopoda.app/Contents/runtime/Contents/Home/lib"),
+                    file("${projectDir}/build/jpackage/jsharktopoda.app/Contents/runtime/Contents/Home/lib/server"),
+                    file("${projectDir}/build/jpackage/jsharktopoda.app/Contents/runtime/Contents/MacOS")
+            ]
+
+            dirsToBeSigned.forEach { dir ->
+                println("Signing $dir")
+                FileCollection files = layout.files(dir.listFiles())
+                files
+                        .findAll {it.isFile() }
+                        .forEach {file ->
+                    exec {
+                        println("MACOSX: Signing ${file}")
+                        workingDir "build/jpackage"
+
+                        executable "codesign"
+
+                        args "--entitlements", "${projectDir}/src/jpackage/macos/java.entitlements",
+                                "--options", "runtime", "--timestamp", "-vvv", "-f", "--sign", signer,
+                                file.absolutePath
+                    }
+                }
+            }
+
+            exec {
+               println("MACOSX: Signing application")
+               workingDir "build/jpackage"
+
+               executable "codesign"
+
+               args "--entitlements", "${projectDir}/src/jpackage/macos/java.entitlements",
+                 "--options", "runtime", "--timestamp", "-vvv", "-f", "--sign", signer,
+                 "jsharktopoda.app"
+            }
+
+        }
     }
 }
