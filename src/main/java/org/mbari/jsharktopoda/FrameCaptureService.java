@@ -1,12 +1,9 @@
-package org.mbari.m3.jsharktopoda.javafx;
+package org.mbari.jsharktopoda;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import org.mbari.jsharktopoda.etc.vcr4j.FrameCaptureData;
+
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author Brian Schlining

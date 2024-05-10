@@ -1,12 +1,11 @@
-package org.mbari.m3.jsharktopoda.javafx;
+package org.mbari.jsharktopoda.etc.vcr4j;
 
 
 import javafx.application.Platform;
+import org.mbari.jsharktopoda.MovieStageController;
 import org.mbari.vcr4j.remote.control.commands.FrameCapture;
 import org.mbari.vcr4j.remote.control.commands.VideoInfo;
 import org.mbari.vcr4j.remote.player.VideoController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SharkVideoController implements VideoController {
 
     private final Map<UUID, MovieStageController> controllers = new ConcurrentHashMap<>();
-    private static final Logger log = LoggerFactory.getLogger(SharkVideoController.class);
+    private static final System.Logger log = System.getLogger(SharkVideoController.class.getName());
 
     public Optional<MovieStageController> findController(UUID videoUuid) {
         return Optional.ofNullable(controllers.get(videoUuid));
@@ -47,15 +46,13 @@ public class SharkVideoController implements VideoController {
             MovieStageController stageController = MovieStageController.newInstance(url.toExternalForm());
             stageController.readyProperty().addListener((ovs, oldv, newv) -> {
                 stageController.getStage().show();
-                log.atDebug()
-                        .log("Opening video controller for " + videoUuid + " at " +
+                log.log(System.Logger.Level.DEBUG, () -> "Opening video controller for " + videoUuid + " at " +
                                 stageController.getMediaView()
                                         .getMediaPlayer()
                                         .getMedia()
                                         .getSource());
 
-                log.atDebug()
-                    .log(stageController.getMediaView()
+                log.log(System.Logger.Level.DEBUG, () -> stageController.getMediaView()
                     .getMediaPlayer()
                     .getMedia().getDuration() + " is the duration");
 
@@ -85,7 +82,7 @@ public class SharkVideoController implements VideoController {
         if (videoUuid != null && controllers.containsKey(videoUuid)) {
             MovieStageController controller = controllers.remove(videoUuid);
             if (controller != null) {
-                log.atDebug().log("Removing video controller for " + videoUuid + " at " +
+                log.log(System.Logger.Level.DEBUG, () -> "Removing video controller for " + videoUuid + " at " +
                         controller.getMediaView()
                                 .getMediaPlayer()
                                 .getMedia()
@@ -141,7 +138,7 @@ public class SharkVideoController implements VideoController {
             return Optional.of(videoInfo);
         }
         catch (MalformedURLException ex) {
-            log.warn("Bad URL, {}, in controller with UUID = {}",
+            log.log(System.Logger.Level.WARNING, "Bad URL, {}, in controller with UUID = {}",
                     stageController.getSource(), videoUuid);
         }
         return Optional.empty();
@@ -171,7 +168,7 @@ public class SharkVideoController implements VideoController {
         if (opt.isPresent()) {
             var controller = opt.get();
             var player = controller.getMediaPlayer();
-            log.atDebug().log("Playing video at rate " + rate);
+            log.log(System.Logger.Level.DEBUG, "Playing video at rate " + rate);
             player.play();
             player.setRate(rate);
             return true;
@@ -246,9 +243,7 @@ public class SharkVideoController implements VideoController {
                 return true;
             }
             catch (Exception e) {
-                log.atDebug()
-                        .setCause(e)
-                        .log("Frame advance failed");
+                log.log(System.Logger.Level.DEBUG, "Frame advance failed", e);
                 return false;
             }
         }

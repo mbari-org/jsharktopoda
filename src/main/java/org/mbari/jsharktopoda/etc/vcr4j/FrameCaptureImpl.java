@@ -1,4 +1,4 @@
-package org.mbari.m3.jsharktopoda.javafx;
+package org.mbari.jsharktopoda.etc.vcr4j;
 
 import org.mbari.vcr4j.remote.control.commands.FrameCapture;
 

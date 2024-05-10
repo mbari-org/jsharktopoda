@@ -1,4 +1,4 @@
-package org.mbari.m3.jsharktopoda.javafx;
+package org.mbari.jsharktopoda;
 
 import javafx.application.Application;
 import javafx.stage.Stage;

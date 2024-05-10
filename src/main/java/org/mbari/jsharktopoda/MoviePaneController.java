@@ -1,4 +1,4 @@
-package org.mbari.m3.jsharktopoda.javafx;
+package org.mbari.jsharktopoda;
 
 
 /**
@@ -22,18 +22,20 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import mbarix4j.awt.image.ImageUtilities;
-import org.mbari.m3.jsharktopoda.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.mbari.jcommons.awt.ImageUtil;
+import org.mbari.jsharktopoda.etc.javafx.JFXUtilities;
+import org.mbari.jsharktopoda.etc.javafx.MaterialIcons;
+import org.mbari.jsharktopoda.etc.vcr4j.FrameCaptureData;
+import org.mbari.jsharktopoda.etc.jdk.Preconditions;
+
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class MoviePaneController implements Initializable, FrameCaptureService {
@@ -60,12 +62,15 @@ public class MoviePaneController implements Initializable, FrameCaptureService {
 
     private BooleanProperty ready = new SimpleBooleanProperty(false);
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final System.Logger log = System.getLogger(MoviePaneController.class.getName());
 
     private Text playIcon;
     private Text pauseIcon;
 
     private final ExecutorService imageWriterExecutor = Executors.newCachedThreadPool();
+
+    private record PlayState(MediaPlayer.Status status, double rate) {}
+    private AtomicReference<PlayState> prescrubState = new AtomicReference<>();
 
 
     @Override
@@ -135,7 +140,8 @@ public class MoviePaneController implements Initializable, FrameCaptureService {
         // ---  Configure play button
         playButton.setOnAction((e) -> {
             MediaPlayer.Status status = mediaPlayer.getStatus();
-            log.debug("PLAY BUTTON TOGGLED: Current mediaPlayer status = " + status);
+
+            log.log(System.Logger.Level.DEBUG, "PLAY BUTTON TOGGLED: Current mediaPlayer status = " + status);
             System.out.println(status);
             if (status == MediaPlayer.Status.UNKNOWN ||  status == MediaPlayer.Status.HALTED) {
                 // Do nothing
@@ -152,6 +158,21 @@ public class MoviePaneController implements Initializable, FrameCaptureService {
         });
 
         // --- Configure Scrubber
+        scrubber.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_PRESSED, e -> {
+            var state = new PlayState(mediaPlayer.getStatus(), mediaPlayer.getCurrentRate());
+            prescrubState.set(state);
+            mediaPlayer.pause();
+        });
+
+        scrubber.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_RELEASED, e -> {
+            var state = prescrubState.get();
+            if (state != null) {
+                if (state.status == MediaPlayer.Status.PLAYING) {
+                    mediaPlayer.play();
+                    mediaPlayer.setRate(state.rate);
+                }
+            }
+        });
         scrubber.valueProperty().addListener(observable -> {
             if (scrubber.isValueChanging()) {
                 Media m = mediaPlayer.getMedia();
@@ -191,9 +212,9 @@ public class MoviePaneController implements Initializable, FrameCaptureService {
                 WritableImage image = mediaView.snapshot(new SnapshotParameters(), null);
                 BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
                 Runnable r = () -> {
-                    log.debug("Saving image to " + target);
+                    log.log(System.Logger.Level.DEBUG, "Saving image to " + target);
                     try {
-                        ImageUtilities.saveImage(bufferedImage, target.toFile());
+                        ImageUtil.saveImage(bufferedImage, target.toFile());
                         var currentTimeMillis = Math.round(currentTime.toMillis());
                         var data = new FrameCaptureData(target, currentTimeMillis, bufferedImage);
                         future.complete(data);

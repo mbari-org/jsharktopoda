@@ -1,4 +1,4 @@
-package org.mbari.m3.jsharktopoda;
+package org.mbari.jsharktopoda.etc.jdk;
 
 /**
  * @author Brian Schlining

@@ -1,7 +1,6 @@
 open module jsharktopoda {
 
   requires com.google.gson;
-  requires com.jfoenix;
   requires io.reactivex.rxjava3;
   requires java.naming;
   requires java.prefs;
@@ -12,14 +11,16 @@ open module jsharktopoda {
   requires javafx.graphics;
   requires javafx.media;
   requires javafx.swing;
-  requires mbarix4j;
+//  requires mbarix4j;
   requires org.kordamp.ikonli.javafx;
   requires org.kordamp.ikonli.material;
-  requires org.slf4j;
   requires transitive vcr4j.core;
   requires transitive vcr4j.remote;
+  requires org.mbari.jcommons;
 
-
-  exports org.mbari.m3.jsharktopoda.javafx;
+  exports org.mbari.jsharktopoda;
+  exports org.mbari.jsharktopoda.etc.vcr4j;
+  exports org.mbari.jsharktopoda.etc.javafx;
+  exports org.mbari.jsharktopoda.etc.jdk;
 
 }

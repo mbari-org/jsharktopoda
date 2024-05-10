@@ -1,4 +1,4 @@
-package org.mbari.m3.jsharktopoda.javafx;
+package org.mbari.jsharktopoda;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -11,9 +11,10 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.mbari.jsharktopoda.etc.javafx.MaterialIcons;
+import org.mbari.jsharktopoda.etc.vcr4j.SharkVideoController;
 import org.mbari.vcr4j.remote.player.VideoControl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -33,7 +34,7 @@ public class JSharktopoda extends Application {
     private VideoControl videoControl;
 
     private SharkVideoController videoController;
-    private final Logger log = LoggerFactory.getLogger(JSharktopoda.class);
+    private final System.Logger log = System.getLogger(JSharktopoda.class.getName());
     private FileChooser fileChooser;
     private TextInputDialog urlDialog;
     private TextInputDialog portDialog;
@@ -55,7 +56,7 @@ public class JSharktopoda extends Application {
                 int port = Integer.parseInt(args.get(0));
                 setPort(port);
             } catch (Exception e) {
-                log.warn("Unable to parse " + args.get(0) + " as a port number");
+                log.log(System.Logger.Level.WARNING, "Unable to parse " + args.get(0) + " as a port number");
             }
         } else {
             Preferences prefs = Preferences.userNodeForPackage(prefNodeKey);
@@ -102,7 +103,7 @@ public class JSharktopoda extends Application {
                         videoController.open(UUID.randomUUID(), url);
                     }
                 } catch (MalformedURLException e) {
-                    log.error("Unable to open file", e);
+                    log.log(System.Logger.Level.ERROR, "Unable to open file", e);
                 }
             }
         });
@@ -130,7 +131,7 @@ public class JSharktopoda extends Application {
                         videoController.open(UUID.randomUUID(), url);
                     }
                 } catch (MalformedURLException e) {
-                    log.error("Unable to open file", e);
+                    log.log(System.Logger.Level.ERROR, "Unable to open file", e);
                 }
             });
             urlDialog.getEditor().setText(null);
@@ -164,7 +165,7 @@ public class JSharktopoda extends Application {
         try {
             prefs.flush();
         } catch (BackingStoreException e) {
-            log.warn("Failed to save port number to prefs", e);
+            log.log(System.Logger.Level.WARNING, "Failed to save port number to prefs", e);
         }
     }
 

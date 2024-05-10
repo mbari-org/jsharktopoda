@@ -1,4 +1,4 @@
-package org.mbari.m3.jsharktopoda;
+package org.mbari.jsharktopoda;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -7,7 +7,7 @@ import junit.framework.TestSuite;
 /**
  * Unit test for simple Main.
  */
-public class MainTest
+public class SanityCheck
     extends TestCase
 {
     /**
@@ -15,7 +15,7 @@ public class MainTest
      *
      * @param testName name of the test case
      */
-    public MainTest( String testName )
+    public SanityCheck(String testName )
     {
         super( testName );
     }
@@ -25,7 +25,7 @@ public class MainTest
      */
     public static Test suite()
     {
-        return new TestSuite( MainTest.class );
+        return new TestSuite( SanityCheck.class );
     }
 
     /**

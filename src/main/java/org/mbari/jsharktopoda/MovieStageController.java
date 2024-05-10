@@ -1,11 +1,10 @@
-package org.mbari.m3.jsharktopoda.javafx;
+package org.mbari.jsharktopoda;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -15,15 +14,13 @@ import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import org.mbari.jsharktopoda.etc.javafx.JFXUtilities;
+import org.mbari.jsharktopoda.etc.vcr4j.FrameCaptureData;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 /**
@@ -32,12 +29,14 @@ import java.util.function.Consumer;
  */
 public class MovieStageController implements FrameCaptureService {
 
+    private static final System.Logger log = System.getLogger(MovieStageController.class.getName());
+
     private MoviePaneController controller;
     private final String movieLocation;
     private final Consumer<MoviePaneController> onReadyRunnable;
 
-    private ObjectProperty<Stage> stage = new SimpleObjectProperty();
-    private BooleanProperty ready = new SimpleBooleanProperty(false);
+    private final ObjectProperty<Stage> stage = new SimpleObjectProperty<>();
+    private final BooleanProperty ready = new SimpleBooleanProperty(false);
 
 
     public MovieStageController(String movieLocation, Consumer<MoviePaneController> onReadyRunnable) {
@@ -134,14 +133,17 @@ public class MovieStageController implements FrameCaptureService {
                     root.setWidth(width);
                     root.setHeight(height);
 
-//                    media.getTracks()
-//                            .stream()
-//                            .forEach(t -> {
-//                                var metadata = t.getMetadata();
-//                                for (var e: metadata.entrySet()) {
-//                                    System.out.println("--- " + e.getKey() + " - " + e.getValue());
-//                                }
-//                            });
+                    if (log.isLoggable(System.Logger.Level.DEBUG)) {
+                        log.log(System.Logger.Level.DEBUG, "Media source: " + media.getSource());
+                        log.log(System.Logger.Level.DEBUG, "Media duration: " + totalTime);
+                        media.getTracks()
+                            .forEach(t -> {
+                                var metadata = t.getMetadata();
+                                for (var e: metadata.entrySet()) {
+                                    log.log(System.Logger.Level.DEBUG, "Media metadata: " + e.getKey() + " - " + e.getValue());
+                                }
+                            });
+                    }
                 });
                 moviePaneController.readyProperty().setValue(true);
             });

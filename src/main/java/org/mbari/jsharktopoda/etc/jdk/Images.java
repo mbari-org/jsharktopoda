@@ -1,4 +1,4 @@
-package org.mbari.m3.jsharktopoda.util;
+package org.mbari.jsharktopoda.etc.jdk;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Brian Schlining
  * @since 2017-11-07T15:00:00
  */
-public class ImageUtilities {
+public class Images {
 
     /**
      * AVFoundation and JavaFX write images asynchronously. We need to block and watch for them to be created.
@@ -76,7 +76,7 @@ public class ImageUtilities {
                      */
                 }
             }
-        }, ImageUtilities.class.getSimpleName() + "-" + Instant.now().toString());
+        }, Images.class.getSimpleName() + "-" + Instant.now().toString());
         thread.start();
         return future;
 

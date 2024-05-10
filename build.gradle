@@ -41,13 +41,7 @@ javafx {
 }
 
 def runtimeJvmArgs = [
-        '-Xms1g',
-        '--add-exports', 'javafx.base/com.sun.javafx.binding=com.jfoenix',
-        '--add-exports', 'javafx.base/com.sun.javafx.event=com.jfoenix',
-        '--add-exports', 'javafx.controls/com.sun.javafx.scene.control.behavior=com.jfoenix',
-        '--add-exports', 'javafx.controls/com.sun.javafx.scene.control=com.jfoenix',
-        '--add-exports', 'javafx.graphics/com.sun.javafx.stage=com.jfoenix',
-        '--add-reads', 'jsharktopoda.merged.module=org.slf4j',
+        '-Xms1g'
 ]
 
 // test {
@@ -61,19 +55,17 @@ def runtimeJvmArgs = [
 
 def vcr4j = "5.2.0"
 dependencies {
-    implementation "com.jfoenix:jfoenix:9.0.10"
+//    implementation "com.jfoenix:jfoenix:9.0.10"
     implementation "io.reactivex.rxjava3:rxjava:3.1.8"
     implementation "org.kordamp.ikonli:ikonli-javafx:12.3.1"
     implementation "org.kordamp.ikonli:ikonli-material-pack:12.3.1"
-    implementation "org.mbari:mbarix4j:2.0.5.jre11"
+    implementation 'org.mbari.commons:jcommons:0.0.6'
     implementation "org.mbari.vcr4j:vcr4j-core:${vcr4j}"
     implementation "org.mbari.vcr4j:vcr4j-remote:${vcr4j}"
-    implementation "org.slf4j:slf4j-api:2.0.12"
-    runtimeOnly('ch.qos.logback:logback-classic:1.5.6') {
-        exclude group: 'javax.activation'
-    }
     runtimeOnly 'javax.servlet:javax.servlet-api:4.0.1'
     runtimeOnly 'org.fusesource.jansi:jansi:2.4.1'
+    runtimeOnly( "org.slf4j:slf4j-jdk-platform-logging:2.0.12")
+    runtimeOnly('ch.qos.logback:logback-classic:1.5.6')
     testImplementation 'junit:junit:4.13.2'
 }
 
@@ -81,7 +73,7 @@ dependencies {
 // mainClassName = 'jsharktopoda/org.mbari.m3.jsharktopoda.javafx.JSharktopoda'
 application {
     mainModule = 'jsharktopoda'
-    mainClassName = 'org.mbari.m3.jsharktopoda.javafx.JSharktopoda'
+    mainClassName = 'org.mbari.jsharktopoda.JSharktopoda'
     applicationDefaultJvmArgs = runtimeJvmArgs
 }
 
@@ -89,7 +81,7 @@ application {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'org.mbari.m3.jsharktopoda.javafx.JSharktopoda'
+        attributes 'Main-Class': 'org.mbari.jsharktopoda.JSharktopoda'
     }
 }
 
