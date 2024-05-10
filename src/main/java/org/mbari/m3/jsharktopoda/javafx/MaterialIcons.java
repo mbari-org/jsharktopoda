@@ -17,10 +17,10 @@ public class MaterialIcons {
   private static final Color color = Color.BLACK;
 
 
-  public static final Text POWER_SETTINGS_NEW = FontIcon.of(Material.POWER_SETTINGS_NEW, 30, color);
-  public static final Text SETTINGS = FontIcon.of(Material.SETTINGS, 30, color);
-  public static final Text COMPUTER = FontIcon.of(Material.COMPUTER, 30, color);
-  public static final Text CLOUD = FontIcon.of(Material.CLOUD, 30, color);
+  public static final Text POWER_SETTINGS_NEW = FontIcon.of(Material.POWER_SETTINGS_NEW, 100, color);
+  public static final Text SETTINGS = FontIcon.of(Material.SETTINGS, 100, color);
+  public static final Text COMPUTER = FontIcon.of(Material.COMPUTER, 100, color);
+  public static final Text CLOUD = FontIcon.of(Material.CLOUD, 100, color);
   public static final Text VOLUME_UP = FontIcon.of(Material.VOLUME_UP, 20, color);
   public static final Text VOLUME_DOWN= FontIcon.of(Material.VOLUME_DOWN, 20, color);
   public static final Text FAST_FORWARD = FontIcon.of(Material.FAST_FORWARD, 30, color);
