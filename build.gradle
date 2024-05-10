@@ -124,7 +124,7 @@ jlink {
             installerType = "dmg"
             customInstallerOptions.addAll([
                 "--mac-package-name", "jsharktopoda",
-                "--mac-package-identifier", project.name
+                "--mac-package-identifier", "org.mbari.jsharktopoda"
             ])
             imageOptions = ["--icon", "src/jpackage/macos/jsharktopoda.icns"]
 
