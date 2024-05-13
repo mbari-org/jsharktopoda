@@ -3,22 +3,21 @@
 # jsharktopoda
 
 
-[![Build Status](https://travis-ci.org/mbari-media-management/jsharktopoda.svg?branch=master)](https://travis-ci.org/mbari-media-management/jsharktopoda)
+[![Build Status](https://travis-ci.org/mbari-org/jsharktopoda.svg?branch=master)](https://travis-ci.org/mbari-org/jsharktopoda)
 
-![Sharktopoda](src/site/resources/images/icon_256x256.png)
+![Sharktopoda](src/site/resources/images/jsharktopoda2.jpg)
 
 
-JavaFX-based video player for macOS, Linux, and Windows. Provides remote UDP interface for integration with other apps. See [REQUIREMENTS.md](https://github.com/mbari-media-management/Sharktopoda/blob/main/docs/REQUIREMENTS.md) for the UDP remote interface specification.
+JavaFX-based video player for macOS, Linux, and Windows. Provides remote UDP interface for integration with other apps. See [REQUIREMENTS.md](https://github.com/mbari-org/Sharktopoda/blob/main/Requirements/UDP_Remote_Protocol.md) for the UDP remote interface specification.
 
-A java implementation of a remote control is available in the [vcr4j-sharktopoda](https://github.com/mbari-media-management/vcr4j/tree/master/vcr4j-sharktopoda) module of [vcr4j](https://github.com/mbari-media-management/vcr4j)
+A java implementation of a remote control is available in the [vcr4j-remote](https://github.com/mbari-org/vcr4j/tree/master/vcr4j-remote) module of [vcr4j](https://github.com/mbari-org/vcr4j)
 
 ## Build
 
-Builds are tested using Java 11 for compilation and Java 14 for packaging. 
+Builds are tested using Java 21. 
 
 ```bash
-export JPACKAGE_HOME=/path/to/jdk14
-gradlew jpackage --info
+gradlew clean jpackage --info
 ```
 
 The generated applications are:
@@ -30,10 +29,3 @@ The generated applications are:
 
 ![Screenshot](src/site/resources/images/jsharktopoda.png)
 
-## Download
-
-You can download JSharktopoda, as a Java jar, from [bintray](https://bintray.com/hohonuuli/generic/download_file?file_path=jsharktopoda-0.1.3-app.jar)
-
-## Java 11 building
-
-<https://medium.com/@adam_carroll/java-packager-with-jdk11-31b3d620f4a8>
