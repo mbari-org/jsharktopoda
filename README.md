@@ -2,7 +2,6 @@
 
 # jsharktopoda
 
-
 [![Build Status](https://travis-ci.org/mbari-org/jsharktopoda.svg?branch=master)](https://travis-ci.org/mbari-org/jsharktopoda)
 
 ![Sharktopoda](src/site/resources/images/jsharktopoda2.jpg)
