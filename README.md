@@ -117,6 +117,11 @@ export MAC_CODE_SIGNER=<your signing identity>
 
 cd build/jpackage
 
+# macOS (15.x+) creates AppleDouble ._* sidecar files inside the bundle which break
+# the code signature. Clean them up before packaging.
+dot_clean "jsharktopoda.app"
+
+
 ditto -c -k --keepParent "jsharktopoda.app" "jsharktopoda.zip"
 
 xcrun notarytool submit "jsharktopoda.zip" \
@@ -126,6 +131,9 @@ xcrun notarytool submit "jsharktopoda.zip" \
     --password <your app signing password>
 
 xcrun stapler staple "jsharktopoda.app"
+
+# Clean up any ._* sidecar files created by stapler before rezipping
+dot_clean "jsharktopoda.app"
 
 rm "jsharktopoda.zip"
 
