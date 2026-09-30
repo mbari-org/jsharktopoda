@@ -3,6 +3,8 @@ package org.mbari.jsharktopoda.etc.vcr4j;
 
 import javafx.application.Platform;
 import org.mbari.jsharktopoda.MovieStageController;
+import org.mbari.jsharktopoda.localization.RemoteNotifier;
+import org.mbari.jsharktopoda.localization.VideoLocalizations;
 import org.mbari.vcr4j.remote.control.commands.FrameCapture;
 import org.mbari.vcr4j.remote.control.commands.VideoInfo;
 import org.mbari.vcr4j.remote.player.VideoController;
@@ -21,7 +23,23 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SharkVideoController implements VideoController {
 
     private final Map<UUID, MovieStageController> controllers = new ConcurrentHashMap<>();
+    private final Map<UUID, VideoLocalizations> localizations = new ConcurrentHashMap<>();
+    private final RemoteNotifier notifier;
     private static final System.Logger log = System.getLogger(SharkVideoController.class.getName());
+
+    public SharkVideoController(RemoteNotifier notifier) {
+        this.notifier = notifier;
+    }
+
+    public Optional<VideoLocalizations> findLocalizations(UUID videoUuid) {
+        return Optional.ofNullable(localizations.get(videoUuid));
+    }
+
+    /** True while a video is loading or open, so localization commands for it are accepted. */
+    @Override
+    public boolean hasVideo(UUID videoUuid) {
+        return videoUuid != null && controllers.containsKey(videoUuid);
+    }
 
     public Optional<MovieStageController> findController(UUID videoUuid) {
         return Optional.ofNullable(controllers.get(videoUuid));
@@ -43,6 +61,7 @@ public class SharkVideoController implements VideoController {
                 return true;
             }
 
+            localizations.putIfAbsent(videoUuid, new VideoLocalizations(videoUuid, notifier));
             MovieStageController stageController = MovieStageController.newInstance(url.toExternalForm());
             stageController.readyProperty().addListener((ovs, oldv, newv) -> {
                 stageController.getStage().show();
@@ -88,6 +107,7 @@ public class SharkVideoController implements VideoController {
                                 .getMedia()
                                 .getSource());
                 controller.close();
+                localizations.remove(videoUuid);
             }
             return true;
         }

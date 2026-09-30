@@ -13,6 +13,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.mbari.jsharktopoda.etc.javafx.MaterialIcons;
 import org.mbari.jsharktopoda.etc.vcr4j.SharkVideoController;
+import org.mbari.jsharktopoda.localization.LocalizationCommandRouter;
+import org.mbari.jsharktopoda.localization.LocalizationTarget;
+import org.mbari.jsharktopoda.localization.RemoteNotifier;
 import org.mbari.vcr4j.remote.player.VideoControl;
 
 
@@ -31,7 +34,8 @@ public class JSharktopoda extends Application {
 
 //    private UdpIO io;
 //    private CommandService commandService;
-    private VideoControl videoControl;
+    private volatile VideoControl videoControl;
+    private LocalizationCommandRouter localizationRouter;
 
     private SharkVideoController videoController;
     private final System.Logger log = System.getLogger(JSharktopoda.class.getName());
@@ -48,7 +52,10 @@ public class JSharktopoda extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         i18n = ResourceBundle.getBundle("i18n", Locale.getDefault());
-        videoController = new SharkVideoController();
+        var notifier = RemoteNotifier.forConnection(() -> videoControl == null
+                ? Optional.empty()
+                : videoControl.getLifeCycle().get());
+        videoController = new SharkVideoController(notifier);
 
         List<String> args = getParameters().getRaw();
         if (args.size() == 1) {
@@ -149,6 +156,9 @@ public class JSharktopoda extends Application {
     }
 
     private void setPort(int port) {
+        if (localizationRouter != null) {
+            localizationRouter.close();
+        }
         if (videoControl != null) {
             videoControl.close();
         }
@@ -157,6 +167,10 @@ public class JSharktopoda extends Application {
                 .videoController(videoController)
                 .build()
                 .get();
+        localizationRouter = new LocalizationCommandRouter(
+                videoControl.getRequestHandler().getLocalizationsCmdObservable(),
+                id -> videoController.findLocalizations(id).map(vl -> (LocalizationTarget) vl),
+                Platform::runLater);
 
 //        commandService = new CommandService(io.getCommandSubject(), io.getResponseSubject());
         getPortDialog().getEditor().setText(port + "");
