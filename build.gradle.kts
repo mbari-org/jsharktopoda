@@ -33,11 +33,22 @@ javafx {
 
 val runtimeJvmArgs = listOf("-Xms1g")
 
+// imgfx depends on ikonli 12.4.0, whose jars all contain an OSGI-INF package. jlink refuses to merge
+// modules that share a package ("Multiple modules contain non-empty package: OSGI-INF"), so jpackage fails.
+// 12.3.1 does not have the problem and has every module imgfx needs.
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.kordamp.ikonli") {
+            useVersion("12.3.1")
+        }
+    }
+}
+
 val vcr4j = "5.3.8"
 dependencies {
     implementation("io.reactivex.rxjava3:rxjava:3.1.12")
-    implementation("org.kordamp.ikonli:ikonli-javafx:12.4.0")
-    implementation("org.kordamp.ikonli:ikonli-material-pack:12.4.0")
+    implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")
+    implementation("org.kordamp.ikonli:ikonli-material-pack:12.3.1")
     implementation("org.mbari.commons:jcommons:0.0.8")
     implementation("org.mbari.vcr4j:vcr4j-core:$vcr4j")
     implementation("org.mbari.vcr4j:vcr4j-remote:$vcr4j")
