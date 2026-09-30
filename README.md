@@ -41,7 +41,7 @@ The remote control protocol is documented in the [Sharktopoda Requirements](http
 
 ### Prerequisites
 
-- **Java 25** (e.g. [Eclipse Temurin](https://adoptium.net/))
+- **Java 27** (e.g. [Eclipse Temurin](https://adoptium.net/))
 - **Gradle 9.3.1** (included via the Gradle wrapper)
 
 ### Build

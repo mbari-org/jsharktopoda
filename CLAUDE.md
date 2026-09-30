@@ -8,7 +8,7 @@ jsharktopoda is a JavaFX video player (part of MBARI's VARS ecosystem) that is d
 
 ## Commands
 
-Requires Java 25 (Gradle toolchain) and uses the Gradle wrapper (Kotlin DSL, `build.gradle.kts`).
+Requires Java 27 (Gradle toolchain) and uses the Gradle wrapper (Kotlin DSL, `build.gradle.kts`).
 
 ```bash
 ./gradlew clean build          # build + tests
@@ -45,5 +45,6 @@ UDP handlers run off the JavaFX thread, so UI and `MediaPlayer` operations must 
 
 - The project is a named, open JPMS module (`src/main/java/module-info.java`). New dependencies must be added both to `build.gradle.kts` and as `requires` in `module-info.java`, and new packages that are used reflectively (FXML) live in an `open` module already.
 - JavaFX is wired through the `org.openjfx.javafxplugin`; the installer is built with `org.beryx.jlink` (`addExtraDependencies("javafx")`). Runtime JVM arg is `-Xms1g`.
+- imgfx (`org.mbari.imgfx:imgfx`) provides the autoscaling video pane and rectangle drawing/editing used for localizations; it is compiled for Java 27, which is why the toolchain is 27.
 - The version is set in `build.gradle.kts` (`version = "2.1.0"`); the jpackage `--app-version` derives from it.
 - `.github/modernize/` holds tooling artifacts from a Java upgrade, not project code.

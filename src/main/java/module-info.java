@@ -20,6 +20,7 @@ open module jsharktopoda {
   requires transitive vcr4j.core;
   requires transitive vcr4j.remote;
   requires org.mbari.jcommons;
+  requires org.mbari.imgfx;
 
   exports org.mbari.jsharktopoda;
   exports org.mbari.jsharktopoda.etc.vcr4j;
