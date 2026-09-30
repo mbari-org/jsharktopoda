@@ -71,6 +71,8 @@ public class SharkVideoController implements VideoController {
                             stageController.getMediaPlayer(),
                             stageController.getStage().getScene());
                 }
+                // closing the window with its own close button must release the video, its player and its localizations
+                stageController.getStage().setOnHidden(e -> close(videoUuid));
                 log.log(System.Logger.Level.DEBUG, () -> "Opening video controller for " + videoUuid + " at " +
                                 stageController.getMediaView()
                                         .getMediaPlayer()

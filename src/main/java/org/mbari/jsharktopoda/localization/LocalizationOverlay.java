@@ -59,6 +59,8 @@ public class LocalizationOverlay {
     private static final class Pooled {
         final RectangleView view;
         final RectangleViewEditor editor;
+        /** imgfx never removes the listeners an editor adds each time editing starts, so count them. */
+        int editSessions;
 
         Pooled(RectangleView view, RectangleViewEditor editor) {
             this.view = view;
@@ -84,6 +86,13 @@ public class LocalizationOverlay {
     }
 
     private static final System.Logger log = System.getLogger(LocalizationOverlay.class.getName());
+
+    /**
+     * Every time imgfx starts editing a view it adds 12 listeners to the view's rectangle and never
+     * removes them, which slows every later change to that view. A pooled view that has been edited
+     * this many times is dropped instead of being reused.
+     */
+    private static final int MAX_EDIT_SESSIONS_PER_VIEW = 100;
 
     private final LocalizationStore store;
     private final MediaPaneController paneController;
@@ -237,7 +246,9 @@ public class LocalizationOverlay {
     private void dispose(Shown s) {
         s.view().setEditing(false);
         s.localization.setVisible(false);
-        pool.push(s.pooled);
+        if (s.pooled.editSessions < MAX_EDIT_SESSIONS_PER_VIEW) {
+            pool.push(s.pooled);
+        }
     }
 
     private void applySelection() {
@@ -256,6 +267,7 @@ public class LocalizationOverlay {
                 // imgfx restores the pre-edit look when editing ends, so style before editing starts
                 applyStyle(s.view(), s.record, isSelected);
                 if (shouldEdit) {
+                    s.pooled.editSessions++;
                     s.view().setEditing(true);
                 }
             }
@@ -332,7 +344,8 @@ public class LocalizationOverlay {
             return;
         }
         if (isEditorNode(e.getTarget())) {
-            return;   // the imgfx editor handles drags on the selected box and its handles
+            mediaPlayer.pause();   // dragging the box is a localization action too; it would leave the time window if playing
+            return;                // the imgfx editor handles drags on the selected box and its handles
         }
         var autoscale = paneController.getAutoscale();
         Point2D p = autoscale.sceneToUnscaled(new Point2D(e.getSceneX(), e.getSceneY()));
@@ -411,7 +424,9 @@ public class LocalizationOverlay {
         if (!DeleteShortcut.matches(e.getCode(), e.isShortcutDown())) {
             return;
         }
-        var selected = store.selected();
+        // only what the user can see: a selection left behind by the remote app or an earlier click may
+        // no longer be on screen, and a stray shortcut must not delete (in both apps) what can't be seen
+        var selected = store.selected().stream().filter(shown::containsKey).toList();
         if (selected.isEmpty()) {
             return;
         }
