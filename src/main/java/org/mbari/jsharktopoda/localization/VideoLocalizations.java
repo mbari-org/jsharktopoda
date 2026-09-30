@@ -1,5 +1,8 @@
 package org.mbari.jsharktopoda.localization;
 
+import javafx.scene.Scene;
+import javafx.scene.media.MediaPlayer;
+import org.mbari.imgfx.mediaview.MediaPaneController;
 import org.mbari.vcr4j.remote.control.commands.localization.Localization;
 
 import java.util.List;
@@ -16,6 +19,7 @@ public class VideoLocalizations implements LocalizationTarget {
     private final UUID videoUuid;
     private final RemoteNotifier notifier;
     private final LocalizationStore store = new LocalizationStore();
+    private LocalizationOverlay overlay;
 
     public VideoLocalizations(UUID videoUuid, RemoteNotifier notifier) {
         this.videoUuid = videoUuid;
@@ -58,5 +62,41 @@ public class VideoLocalizations implements LocalizationTarget {
     @Override
     public void select(List<UUID> uuids) {
         store.select(uuids);
+    }
+
+    /** Called on the FX thread once the window and player are ready. Draws whatever is already in the store. */
+    public void attach(MediaPaneController paneController, MediaPlayer mediaPlayer, Scene scene) {
+        if (overlay != null) {
+            return;
+        }
+        overlay = new LocalizationOverlay(store, paneController, mediaPlayer, scene,
+                new LocalizationOverlay.Listener() {
+                    @Override
+                    public void userAdded(LocalizationRecord record) {
+                        notifier.added(videoUuid, List.of(record));
+                    }
+
+                    @Override
+                    public void userUpdated(LocalizationRecord record) {
+                        notifier.updated(videoUuid, List.of(record));
+                    }
+
+                    @Override
+                    public void userRemoved(List<UUID> uuids) {
+                        notifier.removed(videoUuid, uuids);
+                    }
+
+                    @Override
+                    public void userSelected(List<UUID> uuids) {
+                        notifier.selected(videoUuid, uuids);
+                    }
+                });
+    }
+
+    public void dispose() {
+        if (overlay != null) {
+            overlay.dispose();
+            overlay = null;
+        }
     }
 }

@@ -65,6 +65,12 @@ public class SharkVideoController implements VideoController {
             MovieStageController stageController = MovieStageController.newInstance(url.toExternalForm());
             stageController.readyProperty().addListener((ovs, oldv, newv) -> {
                 stageController.getStage().show();
+                var vl = localizations.get(videoUuid);
+                if (vl != null) {
+                    vl.attach(stageController.getMediaPaneController(),
+                            stageController.getMediaPlayer(),
+                            stageController.getStage().getScene());
+                }
                 log.log(System.Logger.Level.DEBUG, () -> "Opening video controller for " + videoUuid + " at " +
                                 stageController.getMediaView()
                                         .getMediaPlayer()
@@ -107,7 +113,10 @@ public class SharkVideoController implements VideoController {
                                 .getMedia()
                                 .getSource());
                 controller.close();
-                localizations.remove(videoUuid);
+                var vl = localizations.remove(videoUuid);
+                if (vl != null) {
+                    Platform.runLater(vl::dispose);
+                }
             }
             return true;
         }
