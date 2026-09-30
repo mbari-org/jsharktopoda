@@ -5,6 +5,9 @@ open module jsharktopoda {
   requires java.naming;
   requires java.prefs;
   requires java.sql;
+  // Gson needs sun.misc.Unsafe to deserialize classes without a no-args constructor
+  // (e.g. vcr4j's SimpleRequest). It only declares this module as `requires static`.
+  requires jdk.unsupported;
   requires javafx.base;
   requires javafx.controls;
   requires javafx.fxml;
