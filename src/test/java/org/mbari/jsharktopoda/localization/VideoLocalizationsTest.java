@@ -3,7 +3,9 @@ package org.mbari.jsharktopoda.localization;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.mbari.vcr4j.remote.control.RVideoIO;
 import org.mbari.vcr4j.remote.control.commands.localization.Localization;
+import org.mbari.vcr4j.remote.control.commands.localization.UpdateLocalizationsCmd;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,5 +82,31 @@ public class VideoLocalizationsTest {
         vl.remove(List.of(id));
         vl.clear();
         assertTrue(sends.isEmpty());
+    }
+
+    /** vcr4j's Localization initializes color to #DDDDDD, so through Gson an omitted color is never null. */
+    @Test
+    public void partialUpdateFromTheWireKeepsColorAndOtherFields() {
+        var id = UUID.randomUUID();
+        vl.add(List.of(rec(id)));
+        var json = "{\"command\":\"update localizations\",\"uuid\":\"" + video + "\","
+                + "\"localizations\":[{\"uuid\":\"" + id + "\",\"x\":300}]}";
+        var request = RVideoIO.GSON.fromJson(json, UpdateLocalizationsCmd.Request.class);
+        vl.update(request.getLocalizations());
+        var r = vl.getStore().get(id).orElseThrow();
+        assertEquals(300, r.x());
+        assertEquals("#FF0000", r.color());
+        assertEquals("sponge", r.concept());
+        assertEquals(30, r.width());
+    }
+
+    @Test
+    public void updateFromTheWireStillAppliesAnExplicitColor() {
+        var id = UUID.randomUUID();
+        vl.add(List.of(rec(id)));
+        var json = "{\"command\":\"update localizations\",\"uuid\":\"" + video + "\","
+                + "\"localizations\":[{\"uuid\":\"" + id + "\",\"color\":\"#00FF00\"}]}";
+        vl.update(RVideoIO.GSON.fromJson(json, UpdateLocalizationsCmd.Request.class).getLocalizations());
+        assertEquals("#00FF00", vl.getStore().get(id).orElseThrow().color());
     }
 }

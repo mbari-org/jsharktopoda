@@ -21,6 +21,13 @@ public record LocalizationRecord(UUID uuid,
 
     public static final String DEFAULT_COLOR = "#FFFFFF";
 
+    /**
+     * vcr4j's Localization initializes its color to this, so a color omitted from a JSON message
+     * arrives as this value, never null. In a partial update it therefore means "not specified".
+     * (Cost: a remote app can't set a localization to exactly this color with an update.)
+     */
+    static final String VCR4J_UNSPECIFIED_COLOR = "#DDDDDD";
+
     /** Concept for user-created localizations. Preferences will supply this later. */
     public static final String DEFAULT_CONCEPT = "";
 
@@ -67,7 +74,8 @@ public record LocalizationRecord(UUID uuid,
                 p.getY() != null ? p.getY() : y,
                 p.getWidth() != null && p.getWidth() > 0 ? p.getWidth() : width,
                 p.getHeight() != null && p.getHeight() > 0 ? p.getHeight() : height,
-                p.getColor() != null && !p.getColor().isBlank() ? p.getColor() : color);
+                p.getColor() != null && !p.getColor().isBlank()
+                        && !VCR4J_UNSPECIFIED_COLOR.equalsIgnoreCase(p.getColor()) ? p.getColor() : color);
     }
 
     public Localization toRemote() {
