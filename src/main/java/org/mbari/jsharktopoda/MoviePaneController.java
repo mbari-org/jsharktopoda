@@ -15,13 +15,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import org.mbari.imgfx.mediaview.MediaPaneController;
 import org.mbari.jcommons.awt.ImageUtil;
 import org.mbari.jsharktopoda.etc.javafx.JFXUtilities;
 import org.mbari.jsharktopoda.etc.javafx.MaterialIcons;
@@ -41,7 +43,12 @@ import java.util.function.Consumer;
 public class MoviePaneController implements Initializable, FrameCaptureService {
 
     @FXML
-    private AnchorPane anchorPane;
+    private BorderPane rootPane;
+
+    @FXML
+    private StackPane videoHolder;
+
+    private MediaPaneController mediaPaneController;
 
     @FXML
     private MediaView mediaView;
@@ -80,16 +87,23 @@ public class MoviePaneController implements Initializable, FrameCaptureService {
         pauseIcon = MaterialIcons.PAUSE;
         playButton.setGraphic(playIcon);
         mediaView.setPreserveRatio(true);
-        mediaView.fitWidthProperty().bind(anchorPane.widthProperty());
-        mediaView.fitHeightProperty().bind(anchorPane.heightProperty());
     }
 
-    public AnchorPane getRoot() {
-        return anchorPane;
+    public BorderPane getRoot() {
+        return rootPane;
     }
 
-    public AnchorPane getAnchorPane() {
-        return anchorPane;
+    public MediaPaneController getMediaPaneController() {
+        return mediaPaneController;
+    }
+
+    /** imgfx's Autoscale needs the media size, so the video pane is only built once the player is READY. */
+    private void installVideoPane() {
+        if (mediaPaneController == null) {
+            videoHolder.getChildren().clear();
+            mediaPaneController = new MediaPaneController(mediaView);
+            videoHolder.getChildren().add(mediaPaneController.getPane());
+        }
     }
 
     public MediaView getMediaView() {
@@ -128,7 +142,10 @@ public class MoviePaneController implements Initializable, FrameCaptureService {
 
         mediaPlayer.setOnPaused(() -> playButton.setGraphic(playIcon));
 
-        mediaPlayer.setOnReady(() -> onReadyRunnable.accept(this));
+        mediaPlayer.setOnReady(() -> {
+            installVideoPane();
+            onReadyRunnable.accept(this);
+        });
 
         mediaPlayer.setOnEndOfMedia(() -> playButton.setGraphic(playIcon));
 

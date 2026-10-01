@@ -2,15 +2,15 @@ plugins {
     application
     id("com.adarshr.test-logger") version "4.0.0"
     id("org.openjfx.javafxplugin") version "0.1.0"
-    id("org.beryx.jlink") version "3.2.1"
-    id("com.github.ben-manes.versions") version "0.53.0"
+    id("org.beryx.jlink") version "4.1.1"
+    id("com.github.ben-manes.versions") version "0.64.0"
 }
 
-version = "2.1.0"
+version = "3.0.0"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
+        languageVersion = JavaLanguageVersion.of(27)
     }
 }
 
@@ -20,7 +20,7 @@ repositories {
 }
 
 javafx {
-    version = "25.0.1"
+    version = "27"
     modules = listOf(
         "javafx.base",
         "javafx.controls",
@@ -33,18 +33,30 @@ javafx {
 
 val runtimeJvmArgs = listOf("-Xms1g")
 
-val vcr4j = "5.3.1"
+// imgfx depends on ikonli 12.4.0, whose jars all contain an OSGI-INF package. jlink refuses to merge
+// modules that share a package ("Multiple modules contain non-empty package: OSGI-INF"), so jpackage fails.
+// 12.3.1 does not have the problem and has every module imgfx needs.
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.kordamp.ikonli") {
+            useVersion("12.3.1")
+        }
+    }
+}
+
+val vcr4j = "5.4.0"
 dependencies {
-    implementation("io.reactivex.rxjava3:rxjava:3.1.8")
+    implementation("io.reactivex.rxjava3:rxjava:3.1.12")
     implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")
     implementation("org.kordamp.ikonli:ikonli-material-pack:12.3.1")
-    implementation("org.mbari.commons:jcommons:0.0.7")
+    implementation("org.mbari.commons:jcommons:0.0.8")
     implementation("org.mbari.vcr4j:vcr4j-core:$vcr4j")
     implementation("org.mbari.vcr4j:vcr4j-remote:$vcr4j")
+    implementation("org.mbari.imgfx:imgfx:0.0.20")
     runtimeOnly("javax.servlet:javax.servlet-api:4.0.1")
-    runtimeOnly("org.fusesource.jansi:jansi:2.4.2")
-    runtimeOnly("org.slf4j:slf4j-jdk-platform-logging:2.0.17")
-    runtimeOnly("ch.qos.logback:logback-classic:1.5.29")
+    runtimeOnly("org.fusesource.jansi:jansi:2.4.3")
+    runtimeOnly("org.slf4j:slf4j-jdk-platform-logging:2.0.18")
+    runtimeOnly("ch.qos.logback:logback-classic:1.6.5")
     testImplementation("junit:junit:4.13.2")
 }
 

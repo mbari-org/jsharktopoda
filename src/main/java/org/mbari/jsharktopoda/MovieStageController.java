@@ -6,7 +6,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -14,6 +14,7 @@ import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import org.mbari.imgfx.mediaview.MediaPaneController;
 import org.mbari.jsharktopoda.etc.javafx.JFXUtilities;
 import org.mbari.jsharktopoda.etc.vcr4j.FrameCaptureData;
 
@@ -49,7 +50,7 @@ public class MovieStageController implements FrameCaptureService {
     private void init() {
         Platform.runLater(() -> {
             controller.setMediaLocation(movieLocation, onReadyRunnable);
-            AnchorPane root = controller.getRoot();
+            BorderPane root = controller.getRoot();
             Scene scene = new Scene(root);
             scene.getStylesheets().add("/css/MoviePane.css");
             var newStage = new Stage();
@@ -95,6 +96,10 @@ public class MovieStageController implements FrameCaptureService {
             controller.getMediaPlayer().dispose();
         });
 
+    }
+
+    public MediaPaneController getMediaPaneController() {
+        return controller.getMediaPaneController();
     }
 
     public MediaView getMediaView() {

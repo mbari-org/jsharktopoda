@@ -13,6 +13,7 @@ A JavaFX-based video player for macOS, Linux, and Windows with a remote UDP cont
 - Multiple simultaneous video windows, each identified by UUID
 - Frame capture (snapshot) to image files
 - Configurable UDP port (default: 8800), persisted across sessions
+- Render, create, select, move/resize and delete rectangular localizations over the video (Cmd-Delete on macOS, Ctrl-Delete on Windows/Linux removes the selection), synchronized with the remote app over UDP
 - Cross-platform: macOS, Linux, Windows
 
 ## For Users
@@ -41,7 +42,7 @@ The remote control protocol is documented in the [Sharktopoda Requirements](http
 
 ### Prerequisites
 
-- **Java 25** (e.g. [Eclipse Temurin](https://adoptium.net/))
+- **Java 27** (e.g. [Eclipse Temurin](https://adoptium.net/))
 - **Gradle 9.3.1** (included via the Gradle wrapper)
 
 ### Build
@@ -69,6 +70,10 @@ The packaged application is output to `build/jpackage/`.
 ./gradlew test --tests "org.mbari.jsharktopoda.SanityCheck"
 ```
 
+### Manual testing of localizations
+
+The UI has no automated tests; `scripts/udp_send.py '<json>' [port]` sends one UDP command to the running app and prints the reply, and `scripts/udp_listen.py [port]` pretends to be the remote app (send it a `connect` command with its port first) and prints every localization change the app sends.
+
 ### Check for Dependency Updates
 
 ```bash
@@ -86,7 +91,10 @@ jsharktopoda is a Java module (`open module jsharktopoda`, defined in `src/main/
 | `JSharktopoda` | Main `Application` entry point. Creates the toolbar stage and manages the UDP listener (`VideoControl`) via vcr4j. |
 | `SharkVideoController` | Implements vcr4j's `VideoController` interface — the bridge between remote UDP commands and JavaFX video players. Maintains a `Map<UUID, MovieStageController>`. |
 | `MovieStageController` | Wraps a `MoviePaneController` in a JavaFX `Stage`. Handles window lifecycle and sizing. |
-| `MoviePaneController` | FXML-backed controller for the video playback UI (play/pause, time scrubber, frame capture via `MediaView.snapshot()`). |
+| `MoviePaneController` | FXML-backed controller for the video playback UI (play/pause, time scrubber, frame capture via `MediaView.snapshot()`). The video sits in an imgfx `MediaPaneController` so overlays autoscale with it. |
+| `LocalizationStore` | Per-video, time-indexed store of localizations and the selection (the source of truth). |
+| `LocalizationOverlay` | Draws the localizations inside the current time window with imgfx, and handles selecting, editing, creating and deleting them. |
+| `LocalizationCommandRouter` / `RemoteNotifier` | Apply incoming localization commands to the store / send user changes back to the remote app. |
 
 #### Command Flow
 
@@ -107,6 +115,7 @@ UDP command → vcr4j VideoControl → SharkVideoController → MovieStageContro
 - [RxJava 3](https://github.com/ReactiveX/RxJava) — Reactive streams (used internally by vcr4j)
 - [Ikonli](https://kordamp.org/ikonli/) — Material Design icons for JavaFX
 - [jcommons](https://github.com/mbari-org/jcommons) — Image utility for frame captures
+- [imgfx](https://github.com/mbari-org/imgfx) — Autoscaling video pane and rectangle drawing/editing for localizations
 
 ### macOS Code Signing and Notarization
 
