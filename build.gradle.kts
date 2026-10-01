@@ -3,7 +3,7 @@ plugins {
     id("com.adarshr.test-logger") version "4.0.0"
     id("org.openjfx.javafxplugin") version "0.1.0"
     id("org.beryx.jlink") version "4.1.1"
-    id("com.github.ben-manes.versions") version "0.64.0"
+    id("io.github.ben-manes.versions") version "0.64.0"
 }
 
 version = "3.0.0"
@@ -55,7 +55,7 @@ dependencies {
     implementation("org.mbari.imgfx:imgfx:0.0.20")
     runtimeOnly("javax.servlet:javax.servlet-api:4.0.1")
     runtimeOnly("org.fusesource.jansi:jansi:2.4.3")
-    runtimeOnly("org.slf4j:slf4j-jdk-platform-logging:2.0.18")
+    runtimeOnly("org.slf4j:slf4j-jdk-platform-logging:2.0.20")
     runtimeOnly("ch.qos.logback:logback-classic:1.6.5")
     testImplementation("junit:junit:4.13.2")
 }
