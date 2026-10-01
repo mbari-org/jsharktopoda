@@ -177,8 +177,9 @@ public class LocalizationOverlay {
     /** Bring the drawn nodes in line with the store, the playhead and the selection. */
     void refresh() {
         var current = currentMillis();
-        var visible = store.query(TimeWindow.from(current, TimeWindow.DEFAULT_MILLIS),
-                TimeWindow.to(current, TimeWindow.DEFAULT_MILLIS));
+        var windowMillis = LocalizationSettings.getTimeWindowMillis();
+        var visible = store.query(TimeWindow.from(current, windowMillis),
+                TimeWindow.to(current, windowMillis));
 
         Set<UUID> visibleIds = new HashSet<>();
         for (var r : visible) {
@@ -267,6 +268,7 @@ public class LocalizationOverlay {
                 // imgfx restores the pre-edit look when editing ends, so style before editing starts
                 applyStyle(s.view(), s.record, isSelected);
                 if (shouldEdit) {
+                    s.pooled.editor.setEditColor(LocalizationSettings.getClampedEditColor());
                     s.pooled.editSessions++;
                     s.view().setEditing(true);
                 }
@@ -277,11 +279,17 @@ public class LocalizationOverlay {
     }
 
     private static void applyStyle(RectangleView view, LocalizationRecord r, boolean selected) {
-        var c = parseColor(r.color());
+        var custom = selected ? LocalizationSettings.getSelectedColor() : LocalizationSettings.getUnselectedColor();
+        var c = custom != null ? custom : parseColor(r.color());
+        var maxOpacity = selected
+                ? LocalizationSettings.MAX_SELECTED_OPACITY
+                : LocalizationSettings.MAX_UNSELECTED_OPACITY;
+        // a picked color's own opacity applies to the fill, but never above the maximum
+        var opacity = custom != null ? Math.min(custom.getOpacity(), maxOpacity) : maxOpacity;
         var rect = view.getView();
-        rect.setStroke(c);
+        rect.setStroke(Color.color(c.getRed(), c.getGreen(), c.getBlue()));
         rect.setStrokeWidth(selected ? 4 : 2);
-        rect.setFill(Color.color(c.getRed(), c.getGreen(), c.getBlue(), selected ? 0.35 : 0.1));
+        rect.setFill(Color.color(c.getRed(), c.getGreen(), c.getBlue(), opacity));
     }
 
     private static Color parseColor(String color) {
@@ -405,7 +413,7 @@ public class LocalizationOverlay {
         var view = (RectangleView) event.localization().getDataView();
         var d = view.getData();
         var record = new LocalizationRecord(UUID.randomUUID(),
-                LocalizationRecord.DEFAULT_CONCEPT,
+                LocalizationSettings.getDefaultConcept(),
                 Math.round(currentMillis()),
                 0,
                 (int) Math.round(d.getX()),

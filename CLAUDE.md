@@ -32,7 +32,7 @@ UDP command -> vcr4j VideoControl -> SharkVideoController -> MovieStageControlle
 ```
 
 - `JSharktopoda` — `Application` entry point. Builds the toolbar stage (power, settings, open file, open URL) and owns the UDP listener lifecycle. The UDP port (default 8800) is persisted via `java.util.prefs`.
-- `etc/vcr4j/SharkVideoController` — implements vcr4j's `VideoController`; the bridge between remote commands and the UI. Keeps a `Map<UUID, MovieStageController>`, one per open video window, keyed by the UUID the remote client uses to address it.
+- `etc/vcr4j/SharkVideoController` — implements vcr4j's `VideoController`; the bridge between remote commands and the UI. Keeps a `Map<UUID, MovieStageController>`, one per open video window, keyed by the UUID the remote client uses to address it. vcr4j 5.4 requires `openVideo` to block until the video is ready (its return triggers `open done`), so off the FX thread it waits on the stage's ready property; the `VideoResult` variants report failure causes. MediaPlayer cannot play in reverse, seeks only to whole seconds and the previous keyframe, and its `currentRate` is unreliable, so reverse play is emulated with seeks and the requested rate is tracked here.
 - `MovieStageController` — wraps a `MoviePaneController` in a `Stage` (window lifecycle, sizing).
 - `MoviePaneController` — FXML-backed (`src/main/resources/fxml/MoviePane.fxml`, `css/MoviePane.css`) playback UI; frame capture is done through `MediaView.snapshot()`. Implements `FrameCaptureService`.
 - `etc/vcr4j/*Impl`, `FrameCaptureData` — adapter types implementing vcr4j interfaces (frame capture, video info).

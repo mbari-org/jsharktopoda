@@ -28,9 +28,6 @@ public record LocalizationRecord(UUID uuid,
      */
     static final String VCR4J_UNSPECIFIED_COLOR = "#DDDDDD";
 
-    /** Concept for user-created localizations. Preferences will supply this later. */
-    public static final String DEFAULT_CONCEPT = "";
-
     public LocalizationRecord {
         Objects.requireNonNull(uuid, "uuid");
         concept = concept == null ? "" : concept;
