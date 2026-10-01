@@ -44,7 +44,7 @@ configurations.all {
     }
 }
 
-val vcr4j = "5.4.0"
+val vcr4j = "5.4.1"
 dependencies {
     implementation("io.reactivex.rxjava3:rxjava:3.1.12")
     implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")
